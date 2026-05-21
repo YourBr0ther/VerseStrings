@@ -23,3 +23,7 @@ Thumbs.db
 *.log
 TestResults/
 coverage/
+
+# Claude workspace memory — not part of the public repo
+CLAUDE.md
+.claude/
