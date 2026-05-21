@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-05-21
+
 A second cleanup pass focused on making the public repo welcoming to outside
 contributors. No user-facing behavior changes.
 
@@ -86,6 +88,7 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/YourBr0ther/VerseStrings/releases/tag/v0.1.0
