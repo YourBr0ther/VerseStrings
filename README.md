@@ -18,7 +18,7 @@ Auto-installs community localization packs for Star Citizen. Watches GitHub for 
   - **Game running** → toast announces pending update; applies when you quit.
 - Never overwrites your `user.cfg`. Only appends `g_language = english` if missing.
 
-Default source is [MrKraken/StarStrings](https://github.com/MrKraken/StarStrings). Point it at any GitHub repo that publishes a `StarStrings.zip`-shaped asset via `settings.json`.
+Source: [MrKraken/StarStrings](https://github.com/MrKraken/StarStrings) — the community pack VerseStrings was built to deliver.
 
 ## Install
 

@@ -58,7 +58,7 @@
             <TextBox x:Name="LiveFolderBox" Grid.Column="0" />
             <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="OnBrowseClicked" />
         </Grid>
-        <TextBlock Grid.Row="3" x:Name="LiveFolderHint"
+        <TextBlock Grid.Row="3"
                    FontSize="11" Foreground="#a0a0a8"
                    Text="The folder that contains Bin64\StarCitizen.exe" />
 
@@ -76,8 +76,8 @@
 
         <StackPanel Grid.Row="7" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="0,18,0,0">
-            <Button x:Name="CancelButton" Content="Cancel" Click="OnCancelClicked" Margin="0,0,8,0" />
-            <Button x:Name="SaveButton" Content="Save" Click="OnSaveClicked"
+            <Button Content="Cancel" Click="OnCancelClicked" Margin="0,0,8,0" />
+            <Button Content="Save" Click="OnSaveClicked"
                     Background="#3d6dd0" Foreground="White" />
         </StackPanel>
     </Grid>

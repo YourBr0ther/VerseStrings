@@ -4,17 +4,8 @@ namespace VerseStrings.Services;
 
 public sealed class ProcessWatcher
 {
-    private static readonly string[] GameProcessNames = { "StarCitizen", "StarCitizen_Launcher" };
-
-    public bool IsGameRunning()
-    {
-        foreach (var name in GameProcessNames)
-        {
-            if (Process.GetProcessesByName(name).Length > 0)
-                return true;
-        }
-        return false;
-    }
+    public bool IsGameRunning() =>
+        Process.GetProcessesByName("StarCitizen").Length > 0;
 
     public async Task WaitForGameExitAsync(TimeSpan pollInterval, CancellationToken ct)
     {
