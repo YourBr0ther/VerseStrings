@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+- Reinstall over a running tray no longer leaves the user with the old
+  code in memory and a new exe on disk. `installer/VerseStrings.iss` now
+  declares `AppMutex=Global\VerseStrings.SingleInstance` (the same name
+  the app creates in `App.xaml.cs`), so Inno Setup detects the running
+  process up front and prompts the user to close it before any file
+  copy. Previously NTFS would silently let the exe be replaced while
+  the running 0.1.x process held it, and the post-install launch hit
+  the single-instance mutex and exited — the user appeared to have
+  upgraded while still running the old build.
+
 ## [0.1.3] — 2026-05-21
 
 Hardened error handling. No new features; existing flows now degrade

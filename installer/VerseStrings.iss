@@ -20,6 +20,11 @@ AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
+; Same name as the single-instance mutex in App.xaml.cs. Lets Setup detect
+; the running tray during a reinstall and prompt the user to close it,
+; instead of letting NTFS replace the exe under a process that keeps
+; running the old code in memory.
+AppMutex=Global\{#AppName}.SingleInstance
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
