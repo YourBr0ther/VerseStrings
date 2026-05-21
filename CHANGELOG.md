@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+A second cleanup pass focused on making the public repo welcoming to outside
+contributors. No user-facing behavior changes.
+
+### Added
+- `Directory.Build.props` at the repo root, consolidating `Nullable`,
+  `ImplicitUsings`, `LangVersion`, and `TreatWarningsAsErrors` so all three
+  projects pick them up from one place.
+- `.editorconfig` covering indentation, end-of-line handling, and the project's
+  existing C# style (file-scoped namespaces, `_camelCase` private fields).
+- `.github/dependabot.yml` — weekly NuGet and GitHub Actions update PRs.
+- `SECURITY.md` directing vulnerability reports to a private channel.
+- `.github/ISSUE_TEMPLATE/` with bug and feature-request forms plus a `config.yml`
+  that disables blank issues and points content reports at the upstream pack.
+- Zip-slip guard in `Installer`: replaces `ZipFile.ExtractToDirectory` with a
+  per-entry safe extraction that rejects entries resolving outside the
+  extraction root. Pure path-validation helper covered by `InstallerSafetyTests`.
+- `Branding.SelfUpdateRepo` — the GitHub `owner/repo` the app checks for its
+  own updates now lives next to `Branding.AppName`, so a fork only needs to
+  change one constant. The previous hardcoded value in `SelfUpdater` is gone.
+- App icon embedded at the top of the README.
+
+### Changed
+- `VerseStrings.App.csproj` `<Version>` and `VerseStrings.iss` `AppVersion`
+  defaults are now `0.0.0-dev` (was a stale `0.1.1`). The release workflow
+  always overrides both via `-p:Version=` and `/DAppVersion=`, so the previous
+  defaults only ever shipped if someone built locally without the override —
+  in which case `0.0.0-dev` is the honest answer.
+- `installer/README.md` versioning section rewritten to describe the new
+  CI-supplied flow instead of the old "kept in sync manually" warning.
+
+### Removed
+- Redundant `s.Contains("LIVE")` filter in `GameLocator.ScanForLivePath` —
+  `LooksLikeLiveFolder` already requires `Bin64\StarCitizen.exe`, which
+  excludes PTU/EPTU/TECH-PREVIEW folders by construction.
+
 ## [0.1.1] — 2026-05-21
 
 A cleanup release. No new user-facing features — everything in this version is a refactor, simplification, or correctness fix surfaced by a multi-pass code audit.

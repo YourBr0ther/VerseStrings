@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/YourBr0ther/VerseStrings/blob/main/SECURITY.md
+    about: Please report security issues privately — see SECURITY.md.
+  - name: Star Citizen localization content
+    url: https://github.com/MrKraken/StarStrings/issues
+    about: Wrong translations or missing strings live in the upstream pack.

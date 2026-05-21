@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="art/icon.svg" alt="" width="128" height="128">
+
 # VerseStrings
 
 Auto-installs community localization packs for Star Citizen. Watches GitHub for new releases, applies them when you're not in the verse, backs up the previous version every time.

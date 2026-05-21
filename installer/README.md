@@ -27,4 +27,8 @@ Autostart-at-login is not handled by the installer — the app's first-run wizar
 
 ## Versioning
 
-`AppVersion` in `VerseStrings.iss` and `<Version>` in `src/VerseStrings.App/VerseStrings.App.csproj` must be kept in sync manually for now.
+The release version is supplied by CI from the pushed `v*` tag — `release.yml`
+passes `-p:Version=` to `dotnet publish` and `/DAppVersion=` to `ISCC.exe`. The
+defaults inside `VerseStrings.iss` and `VerseStrings.App.csproj` are both
+`0.0.0-dev`, so a local build that forgets to pass a version is honest about
+being a dev build rather than impersonating a stale release.

@@ -38,7 +38,7 @@ public sealed class Installer
                     $"SHA-256 mismatch on downloaded asset. Expected {release.AssetSha256}, got {actualSha}.");
             }
 
-            ZipFile.ExtractToDirectory(zipPath, extractDir);
+            SafeExtract(zipPath, extractDir);
 
             var backupDir = Path.Combine(
                 _backupsRoot,
@@ -123,6 +123,51 @@ public sealed class Installer
         }
 
         return filesWritten;
+    }
+
+    private static void SafeExtract(string zipPath, string extractDir)
+    {
+        Directory.CreateDirectory(extractDir);
+        using var archive = ZipFile.OpenRead(zipPath);
+        foreach (var entry in archive.Entries)
+        {
+            if (!TryResolveSafeEntryPath(extractDir, entry.FullName, out var dest))
+                throw new InvalidDataException(
+                    $"Refusing to extract zip entry that escapes the destination: {entry.FullName}");
+
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                Directory.CreateDirectory(dest);
+                continue;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+            entry.ExtractToFile(dest, overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// Resolves a zip entry's path against an extraction root and rejects
+    /// anything that would land outside it (zip-slip). Public for testing —
+    /// the production caller is <see cref="SafeExtract"/>.
+    /// </summary>
+    public static bool TryResolveSafeEntryPath(string extractRoot, string entryName, out string resolvedPath)
+    {
+        var rootFull = Path.GetFullPath(extractRoot);
+        var rootWithSep = rootFull.EndsWith(Path.DirectorySeparatorChar)
+            ? rootFull
+            : rootFull + Path.DirectorySeparatorChar;
+
+        var candidate = Path.GetFullPath(Path.Combine(rootFull, entryName));
+        if (candidate.Equals(rootFull, StringComparison.Ordinal) ||
+            candidate.StartsWith(rootWithSep, StringComparison.Ordinal))
+        {
+            resolvedPath = candidate;
+            return true;
+        }
+
+        resolvedPath = string.Empty;
+        return false;
     }
 
     private static string ResolveSourceRoot(string extractRoot)

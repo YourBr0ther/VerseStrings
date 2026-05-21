@@ -8,9 +8,8 @@ namespace VerseStrings.Services;
 
 public sealed class SelfUpdater
 {
-    private const string Repo = "YourBr0ther/VerseStrings";
-
-    public static readonly string ReleasesPageUrl = $"https://github.com/{Repo}/releases/latest";
+    public static readonly string ReleasesPageUrl =
+        $"https://github.com/{Branding.SelfUpdateRepo}/releases/latest";
 
     private readonly HttpClient _http;
 
@@ -29,7 +28,9 @@ public sealed class SelfUpdater
     /// </summary>
     public async Task<Version?> CheckForNewVersionAsync(CancellationToken ct = default)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{Repo}/releases/latest");
+        using var req = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"https://api.github.com/repos/{Branding.SelfUpdateRepo}/releases/latest");
         req.Headers.UserAgent.ParseAdd(GithubReleaseClient.UserAgent);
         req.Headers.Accept.ParseAdd("application/vnd.github+json");
 

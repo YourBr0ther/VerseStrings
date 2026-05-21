@@ -13,4 +13,12 @@ public static class Branding
     /// visible from a single grep.
     /// </summary>
     public const string AppName = "VerseStrings";
+
+    /// <summary>
+    /// GitHub <c>owner/repo</c> the app checks for its own updates. Forks change
+    /// this so the self-update check points at their own release stream rather
+    /// than upstream. The <i>content</i> upstream (the localization pack) lives
+    /// separately in <see cref="AppSettings.Repo"/>.
+    /// </summary>
+    public const string SelfUpdateRepo = "YourBr0ther/VerseStrings";
 }

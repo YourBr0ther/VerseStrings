@@ -1,0 +1,33 @@
+name: Feature request
+description: An idea for a behavior change or improvement.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        VerseStrings is intentionally narrow in scope — one tray app that
+        installs one community localization pack. Most "feature" requests are
+        better off as a fork. That said, ideas that sharpen the existing
+        behavior are welcome.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: The user-visible behavior you're hitting today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like the app to do instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Workarounds, forks, manual steps — anything you tried first.

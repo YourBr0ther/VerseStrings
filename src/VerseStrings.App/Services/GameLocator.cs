@@ -72,8 +72,7 @@ public static class GameLocator
                 break;
             case JsonValueKind.String:
                 var s = element.GetString();
-                if (!string.IsNullOrWhiteSpace(s) && s.Contains("LIVE", StringComparison.OrdinalIgnoreCase) &&
-                    LooksLikeLiveFolder(s))
+                if (!string.IsNullOrWhiteSpace(s) && LooksLikeLiveFolder(s))
                     return s;
                 break;
         }

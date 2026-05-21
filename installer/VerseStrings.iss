@@ -7,7 +7,7 @@
 
 #define AppName       "VerseStrings"
 #ifndef AppVersion
-  #define AppVersion  "0.1.1"
+  #define AppVersion  "0.0.0-dev"
 #endif
 #define AppPublisher  "YourBr0ther"
 #define AppExeName    "VerseStrings.exe"
