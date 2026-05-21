@@ -6,7 +6,9 @@
 ; Output: dist\VerseStringsSetup-<version>.exe
 
 #define AppName       "VerseStrings"
-#define AppVersion    "0.1.0"
+#ifndef AppVersion
+  #define AppVersion  "0.1.0"
+#endif
 #define AppPublisher  "YourBr0ther"
 #define AppExeName    "VerseStrings.exe"
 #define AppId         "{B19E58A1-3A0B-4C5A-8C9D-7A1B2C3D4E5F}"
@@ -32,6 +34,7 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 LicenseFile=..\LICENSE
+SetupIconFile=..\src\VerseStrings.App\Assets\icon.ico
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763

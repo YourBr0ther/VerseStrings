@@ -68,6 +68,28 @@ public partial class App : Application
         _tray.Show();
 
         _ = _orchestrator.StartAsync();
+        _ = CheckSelfUpdateAsync(new SelfUpdater(_http), toast);
+    }
+
+    private async Task CheckSelfUpdateAsync(SelfUpdater updater, ToastService toast)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            if (!await updater.CheckAsync()) return;
+
+            Dispatcher.Invoke(() =>
+            {
+                _tray?.ShowSelfUpdateAvailable(updater.LatestVersion!, updater.LatestReleaseUrl);
+                toast.ShowInfo(
+                    $"VerseStrings v{updater.LatestVersion} is available",
+                    "Open the tray menu and click \"Update VerseStrings\" to download.");
+            });
+        }
+        catch
+        {
+            // Network or API errors are non-fatal — we'll check again next launch.
+        }
     }
 
     private void RunFirstRunFlow()

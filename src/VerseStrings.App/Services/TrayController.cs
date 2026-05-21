@@ -20,6 +20,8 @@ public sealed class TrayController : IDisposable
     private readonly ToolStripMenuItem _checkNowItem;
     private readonly ToolStripMenuItem _restoreItem;
     private readonly ToolStripMenuItem _autostartItem;
+    private ToolStripMenuItem? _selfUpdateItem;
+    private ToolStripSeparator? _selfUpdateSeparator;
 
     public TrayController(
         SettingsStore settingsStore,
@@ -81,6 +83,21 @@ public sealed class TrayController : IDisposable
     {
         _icon.Visible = true;
         RefreshStatus();
+    }
+
+    public void ShowSelfUpdateAvailable(Version newVersion, string releaseUrl)
+    {
+        var menu = _icon.ContextMenuStrip;
+        if (menu is null || _selfUpdateItem is not null) return;
+
+        _selfUpdateItem = new ToolStripMenuItem(
+            $"⬇ Update VerseStrings to v{newVersion}",
+            null,
+            (_, _) => Process.Start(new ProcessStartInfo { FileName = releaseUrl, UseShellExecute = true }));
+        _selfUpdateSeparator = new ToolStripSeparator();
+
+        menu.Items.Insert(0, _selfUpdateItem);
+        menu.Items.Insert(1, _selfUpdateSeparator);
     }
 
     private async Task OnCheckNow()

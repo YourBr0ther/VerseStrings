@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VerseStrings icon: Comm-Link Arc
+     A gold 5-point star centered inside three concentric blue rings.
+     The rings read as broadcast / radar / signal — the watcher listening
+     for new releases. Single-color silhouette, transparent background,
+     designed to read at every Windows icon size from 16 px to 256 px.
+
+     Regenerate icon.ico from this source:
+       magick art/icon.svg -define icon:auto-resize=256,128,64,48,40,32,24,20,16 ^
+         src/VerseStrings.App/Assets/icon.ico
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <circle cx="128" cy="128" r="108" fill="none" stroke="#4A90E2" stroke-width="10" opacity="0.45"/>
+  <circle cx="128" cy="128" r="85"  fill="none" stroke="#4A90E2" stroke-width="12" opacity="0.72"/>
+  <circle cx="128" cy="128" r="65"  fill="none" stroke="#4A90E2" stroke-width="14"/>
+  <polygon
+    points="128,83 138.0,114.3 170.8,114.1 144.2,133.3 154.5,164.4 128,145 101.5,164.4 111.8,133.3 85.2,114.1 118.0,114.3"
+    fill="#F5C842"/>
+</svg>
