@@ -18,10 +18,8 @@ public sealed class TrayController : IDisposable
 
     private readonly ToolStripMenuItem _statusItem;
     private readonly ToolStripMenuItem _checkNowItem;
-    private readonly ToolStripMenuItem _restoreItem;
     private readonly ToolStripMenuItem _autostartItem;
     private ToolStripMenuItem? _selfUpdateItem;
-    private ToolStripSeparator? _selfUpdateSeparator;
 
     public TrayController(
         SettingsStore settingsStore,
@@ -57,8 +55,7 @@ public sealed class TrayController : IDisposable
         var settingsItem = new ToolStripMenuItem("Settings…", null, (_, _) => OnOpenSettings());
         menu.Items.Add(settingsItem);
 
-        _restoreItem = new ToolStripMenuItem("Restore previous version", null, (_, _) => OnRestoreBackup());
-        menu.Items.Add(_restoreItem);
+        menu.Items.Add(new ToolStripMenuItem("Restore previous version", null, (_, _) => OnRestoreBackup()));
 
         menu.Items.Add(new ToolStripSeparator());
 
@@ -94,10 +91,9 @@ public sealed class TrayController : IDisposable
             $"⬇ Update VerseStrings to v{newVersion}",
             null,
             (_, _) => Process.Start(new ProcessStartInfo { FileName = releaseUrl, UseShellExecute = true }));
-        _selfUpdateSeparator = new ToolStripSeparator();
 
         menu.Items.Insert(0, _selfUpdateItem);
-        menu.Items.Insert(1, _selfUpdateSeparator);
+        menu.Items.Insert(1, new ToolStripSeparator());
     }
 
     private async Task OnCheckNow()

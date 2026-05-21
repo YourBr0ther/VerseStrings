@@ -22,7 +22,7 @@ public sealed class Installer
         if (!Directory.Exists(liveFolderPath))
             throw new DirectoryNotFoundException($"LIVE folder not found: {liveFolderPath}");
 
-        var tempRoot = Path.Combine(Path.GetTempPath(), $"starstrings-{Guid.NewGuid():N}");
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"versestrings-{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempRoot);
         var zipPath = Path.Combine(tempRoot, release.AssetName);
         var extractDir = Path.Combine(tempRoot, "extracted");
@@ -52,7 +52,6 @@ public sealed class Installer
             return new InstallResult(
                 ReleaseName: release.Name,
                 Sha256: actualSha,
-                BackupFolderPath: backupDir,
                 FilesInstalled: filesWritten);
         }
         finally

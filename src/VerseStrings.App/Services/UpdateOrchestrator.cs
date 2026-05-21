@@ -13,7 +13,6 @@ public sealed class UpdateOrchestrator : IDisposable
     private readonly ProcessWatcher _processWatcher;
 
     private readonly CancellationTokenSource _cts = new();
-    private Task? _loopTask;
     private readonly SemaphoreSlim _checkLock = new(1, 1);
 
     public UpdateOrchestrator(
@@ -34,7 +33,7 @@ public sealed class UpdateOrchestrator : IDisposable
 
     public Task StartAsync()
     {
-        _loopTask = Task.Run(() => LoopAsync(_cts.Token));
+        _ = Task.Run(() => LoopAsync(_cts.Token));
         return Task.CompletedTask;
     }
 
@@ -67,8 +66,6 @@ public sealed class UpdateOrchestrator : IDisposable
             if (string.IsNullOrWhiteSpace(settings.LiveFolderPath))
                 return;
 
-            settings.LastCheckAt = DateTimeOffset.UtcNow;
-            _settings.Save(settings);
             StatusChanged?.Invoke(this, EventArgs.Empty);
 
             var release = await _github.GetLatestAsync(settings.Repo, AssetName, ct);

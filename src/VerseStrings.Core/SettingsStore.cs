@@ -26,8 +26,6 @@ public sealed class SettingsStore
         return new SettingsStore(Path.Combine(dir, "settings.json"));
     }
 
-    public string FilePath => _path;
-
     public AppSettings Load()
     {
         if (!File.Exists(_path))

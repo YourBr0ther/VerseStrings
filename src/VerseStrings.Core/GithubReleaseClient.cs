@@ -36,10 +36,8 @@ public sealed class GithubReleaseClient
         return new ReleaseInfo(
             TagName: payload.TagName ?? "",
             Name: payload.Name ?? payload.TagName ?? "",
-            PublishedAt: payload.PublishedAt ?? DateTimeOffset.MinValue,
             AssetName: asset.Name ?? "",
             AssetDownloadUrl: asset.BrowserDownloadUrl ?? "",
-            AssetSizeBytes: asset.Size,
             AssetSha256: ExtractSha256(asset.Digest));
     }
 
@@ -68,7 +66,6 @@ public sealed class GithubReleaseClient
     {
         [JsonPropertyName("tag_name")] public string? TagName { get; set; }
         [JsonPropertyName("name")] public string? Name { get; set; }
-        [JsonPropertyName("published_at")] public DateTimeOffset? PublishedAt { get; set; }
         [JsonPropertyName("assets")] public List<AssetPayload> Assets { get; set; } = new();
     }
 
@@ -76,7 +73,6 @@ public sealed class GithubReleaseClient
     {
         [JsonPropertyName("name")] public string? Name { get; set; }
         [JsonPropertyName("browser_download_url")] public string? BrowserDownloadUrl { get; set; }
-        [JsonPropertyName("size")] public long Size { get; set; }
         [JsonPropertyName("digest")] public string? Digest { get; set; }
     }
 }
