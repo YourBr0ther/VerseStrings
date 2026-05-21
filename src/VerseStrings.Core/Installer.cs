@@ -32,8 +32,7 @@ public sealed class Installer
             await _github.DownloadAssetAsync(release, zipPath, ct);
 
             var actualSha = await ComputeSha256Async(zipPath, ct);
-            if (!string.IsNullOrWhiteSpace(release.AssetSha256) &&
-                !string.Equals(actualSha, release.AssetSha256, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(actualSha, release.AssetSha256, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidDataException(
                     $"SHA-256 mismatch on downloaded asset. Expected {release.AssetSha256}, got {actualSha}.");

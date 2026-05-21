@@ -80,8 +80,8 @@ public partial class App : Application
 
             Dispatcher.Invoke(() =>
             {
-                _tray?.ShowSelfUpdateAvailable(updater.LatestVersion!, updater.LatestReleaseUrl);
-                toast.ShowInfo(
+                _tray?.ShowSelfUpdateAvailable(updater.LatestVersion!);
+                toast.Show(
                     $"VerseStrings v{updater.LatestVersion} is available",
                     "Open the tray menu and click \"Update VerseStrings\" to download.");
             });

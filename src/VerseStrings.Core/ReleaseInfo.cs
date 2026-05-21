@@ -5,5 +5,5 @@ public sealed record ReleaseInfo(
     string Name,
     string AssetName,
     string AssetDownloadUrl,
-    string? AssetSha256
+    string AssetSha256
 );

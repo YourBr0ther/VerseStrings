@@ -82,7 +82,7 @@ public sealed class TrayController : IDisposable
         RefreshStatus();
     }
 
-    public void ShowSelfUpdateAvailable(Version newVersion, string releaseUrl)
+    public void ShowSelfUpdateAvailable(Version newVersion)
     {
         var menu = _icon.ContextMenuStrip;
         if (menu is null || _selfUpdateItem is not null) return;
@@ -90,7 +90,7 @@ public sealed class TrayController : IDisposable
         _selfUpdateItem = new ToolStripMenuItem(
             $"⬇ Update VerseStrings to v{newVersion}",
             null,
-            (_, _) => Process.Start(new ProcessStartInfo { FileName = releaseUrl, UseShellExecute = true }));
+            (_, _) => Process.Start(new ProcessStartInfo { FileName = SelfUpdater.ReleasesPageUrl, UseShellExecute = true }));
 
         menu.Items.Insert(0, _selfUpdateItem);
         menu.Items.Insert(1, new ToolStripSeparator());
@@ -125,13 +125,13 @@ public sealed class TrayController : IDisposable
         var settings = _settingsStore.Load();
         if (string.IsNullOrWhiteSpace(settings.LiveFolderPath))
         {
-            _toast.ShowWarning("Cannot restore", "Set your LIVE folder in Settings first.");
+            _toast.Show("Cannot restore", "Set your LIVE folder in Settings first.");
             return;
         }
         var backup = _installer.FindMostRecentBackup();
         if (backup is null)
         {
-            _toast.ShowInfo("No backups", "There is nothing to restore yet.");
+            _toast.Show("No backups", "There is nothing to restore yet.");
             return;
         }
 
@@ -141,11 +141,11 @@ public sealed class TrayController : IDisposable
             settings.LastAppliedSha256 = null;
             settings.LastAppliedReleaseName = "(restored from backup)";
             _settingsStore.Save(settings);
-            _toast.ShowSuccess("Restored", $"Restored backup from {Path.GetFileName(backup)}.");
+            _toast.Show("Restored", $"Restored backup from {Path.GetFileName(backup)}.");
         }
         catch (Exception ex)
         {
-            _toast.ShowError("Restore failed", ex.Message);
+            _toast.Show("Restore failed", ex.Message);
         }
     }
 

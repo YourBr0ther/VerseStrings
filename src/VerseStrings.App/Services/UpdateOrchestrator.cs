@@ -66,21 +66,15 @@ public sealed class UpdateOrchestrator : IDisposable
             if (string.IsNullOrWhiteSpace(settings.LiveFolderPath))
                 return;
 
-            StatusChanged?.Invoke(this, EventArgs.Empty);
-
             var release = await _github.GetLatestAsync(settings.Repo, AssetName, ct);
             if (release is null) return;
 
-            var newSha = release.AssetSha256;
-            if (string.IsNullOrWhiteSpace(newSha))
-                return;
-
-            if (string.Equals(newSha, settings.LastAppliedSha256, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(release.AssetSha256, settings.LastAppliedSha256, StringComparison.OrdinalIgnoreCase))
                 return;
 
             if (_processWatcher.IsGameRunning())
             {
-                _toast.ShowInfo(
+                _toast.Show(
                     "VerseStrings update pending",
                     $"New release \"{release.Name}\" will install when you close Star Citizen.");
                 await _processWatcher.WaitForGameExitAsync(TimeSpan.FromSeconds(15), ct);
@@ -97,13 +91,13 @@ public sealed class UpdateOrchestrator : IDisposable
                 settings.LastAppliedAt = DateTimeOffset.UtcNow;
                 _settings.Save(settings);
 
-                _toast.ShowSuccess(
+                _toast.Show(
                     "VerseStrings updated",
                     $"Installed \"{result.ReleaseName}\" — {result.FilesInstalled} files. Backup saved.");
             }
             catch (Exception ex)
             {
-                _toast.ShowError("VerseStrings update failed", ex.Message);
+                _toast.Show("VerseStrings update failed", ex.Message);
             }
 
             StatusChanged?.Invoke(this, EventArgs.Empty);

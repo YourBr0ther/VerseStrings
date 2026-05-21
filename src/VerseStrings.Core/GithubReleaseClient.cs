@@ -5,19 +5,19 @@ namespace VerseStrings.Core;
 
 public sealed class GithubReleaseClient
 {
-    private readonly HttpClient _http;
-    private readonly string _userAgent;
+    public const string UserAgent = "VerseStrings";
 
-    public GithubReleaseClient(HttpClient http, string userAgent = "VerseStrings")
+    private readonly HttpClient _http;
+
+    public GithubReleaseClient(HttpClient http)
     {
         _http = http;
-        _userAgent = userAgent;
     }
 
     public async Task<ReleaseInfo?> GetLatestAsync(string repo, string assetName, CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
-        req.Headers.UserAgent.ParseAdd(_userAgent);
+        req.Headers.UserAgent.ParseAdd(UserAgent);
         req.Headers.Accept.ParseAdd("application/vnd.github+json");
 
         using var resp = await _http.SendAsync(req, ct);
@@ -33,18 +33,22 @@ public sealed class GithubReleaseClient
         if (asset is null)
             return null;
 
+        var sha256 = ExtractSha256(asset.Digest);
+        if (sha256 is null)
+            return null;
+
         return new ReleaseInfo(
             TagName: payload.TagName ?? "",
             Name: payload.Name ?? payload.TagName ?? "",
             AssetName: asset.Name ?? "",
             AssetDownloadUrl: asset.BrowserDownloadUrl ?? "",
-            AssetSha256: ExtractSha256(asset.Digest));
+            AssetSha256: sha256);
     }
 
     public async Task DownloadAssetAsync(ReleaseInfo release, string destinationPath, CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, release.AssetDownloadUrl);
-        req.Headers.UserAgent.ParseAdd(_userAgent);
+        req.Headers.UserAgent.ParseAdd(UserAgent);
 
         using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
         resp.EnsureSuccessStatusCode();
