@@ -22,25 +22,25 @@ public sealed class SelfUpdater
     public Version CurrentVersion =>
         Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0);
 
-    public Version? LatestVersion { get; private set; }
-
-    public async Task<bool> CheckAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Returns the latest tagged version if it is newer than the currently
+    /// running assembly, or null when the app is already up to date / the
+    /// check failed (offline, rate-limited, etc).
+    /// </summary>
+    public async Task<Version?> CheckForNewVersionAsync(CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{Repo}/releases/latest");
         req.Headers.UserAgent.ParseAdd(GithubReleaseClient.UserAgent);
         req.Headers.Accept.ParseAdd("application/vnd.github+json");
 
         using var resp = await _http.SendAsync(req, ct);
-        if (!resp.IsSuccessStatusCode) return false;
+        if (!resp.IsSuccessStatusCode) return null;
 
         var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
-        if (string.IsNullOrWhiteSpace(payload?.TagName)) return false;
+        var latest = VersionParser.TryParseTag(payload?.TagName);
+        if (latest is null) return null;
 
-        var latest = VersionParser.TryParseTag(payload.TagName);
-        if (latest is null) return false;
-
-        LatestVersion = latest;
-        return latest.CompareTo(CurrentVersion) > 0;
+        return latest.CompareTo(CurrentVersion) > 0 ? latest : null;
     }
 
     private sealed class ReleasePayload

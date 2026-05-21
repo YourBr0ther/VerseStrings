@@ -31,10 +31,9 @@ public sealed class UpdateOrchestrator : IDisposable
 
     public event EventHandler? StatusChanged;
 
-    public Task StartAsync()
+    public void Start()
     {
         _ = Task.Run(() => LoopAsync(_cts.Token));
-        return Task.CompletedTask;
     }
 
     public async Task CheckNowAsync()

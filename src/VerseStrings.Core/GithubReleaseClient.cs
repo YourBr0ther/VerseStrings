@@ -21,27 +21,23 @@ public sealed class GithubReleaseClient
         req.Headers.Accept.ParseAdd("application/vnd.github+json");
 
         using var resp = await _http.SendAsync(req, ct);
-        if (!resp.IsSuccessStatusCode)
-            return null;
+        if (!resp.IsSuccessStatusCode) return null;
 
         var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
-        if (payload is null)
-            return null;
+        if (payload is null || string.IsNullOrWhiteSpace(payload.TagName)) return null;
 
         var asset = payload.Assets.FirstOrDefault(a =>
             string.Equals(a.Name, assetName, StringComparison.OrdinalIgnoreCase));
-        if (asset is null)
-            return null;
+        if (asset is null || string.IsNullOrWhiteSpace(asset.BrowserDownloadUrl)) return null;
 
         var sha256 = ExtractSha256(asset.Digest);
-        if (sha256 is null)
-            return null;
+        if (sha256 is null) return null;
 
         return new ReleaseInfo(
-            TagName: payload.TagName ?? "",
-            Name: payload.Name ?? payload.TagName ?? "",
-            AssetName: asset.Name ?? "",
-            AssetDownloadUrl: asset.BrowserDownloadUrl ?? "",
+            TagName: payload.TagName,
+            Name: payload.Name ?? payload.TagName,
+            AssetName: asset.Name!,
+            AssetDownloadUrl: asset.BrowserDownloadUrl,
             AssetSha256: sha256);
     }
 

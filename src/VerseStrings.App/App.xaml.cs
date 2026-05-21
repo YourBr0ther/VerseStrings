@@ -67,7 +67,7 @@ public partial class App : Application
             shutdown: Shutdown);
         _tray.Show();
 
-        _ = _orchestrator.StartAsync();
+        _orchestrator.Start();
         _ = CheckSelfUpdateAsync(new SelfUpdater(_http), toast);
     }
 
@@ -76,13 +76,14 @@ public partial class App : Application
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(10));
-            if (!await updater.CheckAsync()) return;
+            var newer = await updater.CheckForNewVersionAsync();
+            if (newer is null) return;
 
             Dispatcher.Invoke(() =>
             {
-                _tray?.ShowSelfUpdateAvailable(updater.LatestVersion!);
+                _tray?.ShowSelfUpdateAvailable(newer);
                 toast.Show(
-                    $"VerseStrings v{updater.LatestVersion} is available",
+                    $"VerseStrings v{newer} is available",
                     "Open the tray menu and click \"Update VerseStrings\" to download.");
             });
         }
