@@ -59,18 +59,38 @@ public sealed class Installer
         }
     }
 
-    public void RestoreBackup(string backupFolderPath, string liveFolderPath)
+    /// <summary>
+    /// Copies each file from <paramref name="backupFolderPath"/> back into
+    /// <paramref name="liveFolderPath"/>. Failures are accumulated per-file
+    /// instead of aborting on the first error — a single locked file (e.g.,
+    /// the game has just been re-opened) shouldn't prevent the rest of the
+    /// restore from completing. The caller decides how to surface failures.
+    /// </summary>
+    public RestoreResult RestoreBackup(string backupFolderPath, string liveFolderPath)
     {
         if (!Directory.Exists(backupFolderPath))
             throw new DirectoryNotFoundException($"Backup folder not found: {backupFolderPath}");
+
+        var restored = 0;
+        var failed = new List<string>();
 
         foreach (var file in Directory.EnumerateFiles(backupFolderPath, "*", SearchOption.AllDirectories))
         {
             var rel = Path.GetRelativePath(backupFolderPath, file);
             var dest = Path.Combine(liveFolderPath, rel);
-            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-            File.Copy(file, dest, overwrite: true);
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                File.Copy(file, dest, overwrite: true);
+                restored++;
+            }
+            catch
+            {
+                failed.Add(rel);
+            }
         }
+
+        return new RestoreResult(restored, failed);
     }
 
     public string? FindMostRecentBackup()

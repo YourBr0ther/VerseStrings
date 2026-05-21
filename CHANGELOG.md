@@ -6,6 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+Hardened error handling. No new features; existing flows now degrade
+gracefully instead of crashing or going silent.
+
+### Added
+- Top-level safety net in `App`: `DispatcherUnhandledException`,
+  `TaskScheduler.UnobservedTaskException`, and `AppDomain.UnhandledException`
+  are wired to a single reporter that toasts the failure. UI-thread and
+  unobserved-task exceptions no longer take the app down.
+- Friendly startup message when `settings.json` is corrupt — names the file
+  path and tells the user to fix or delete it, instead of the WPF crash
+  dialog.
+- `RestoreResult` (`FilesRestored`, `FailedFiles`) — `Installer.RestoreBackup`
+  now reports per-file outcomes so the tray can tell the user e.g. "restored
+  118 file(s); 2 could not be written (game running or files locked?)".
+
+### Changed
+- `UpdateOrchestrator` loop wraps every iteration in a catch-all. A transient
+  `HttpRequestException`, a `JsonException` from `settings.json`, or any
+  other unexpected throw now toasts and continues polling instead of killing
+  the watcher silently. Interval reload is also defensive — falls back to
+  the 15-minute default if `Load` throws.
+- `Installer.RestoreBackup` no longer aborts on the first per-file failure.
+  Each copy is independently try/catched; the result tells the caller which
+  files failed.
+- `AutostartService.Sync` returns `bool` indicating whether the registry
+  write actually stuck. `TrayController` reverts the menu checkbox and
+  toasts the user when Windows refuses the change.
+- `ToastService.Show` is defensive — if Windows notifications are disabled
+  (Focus Assist, Do Not Disturb, per-app block), the call no longer
+  propagates and crashes whichever code path was just trying to inform
+  the user.
+- `SettingsWindow.OnSaveClicked` shows an error dialog and stays open if
+  `settings.json` can't be written (disk full, AV holding the file). The
+  previous behavior was to close as if save succeeded.
+- All `TrayController` menu handlers are wrapped in `SafeInvoke` /
+  `SafeInvokeAsync`. A `Process.Start` failure on "Open backups folder",
+  a registry failure on autostart toggle, or any other unexpected exception
+  surfaces as a toast rather than crashing the WinForms message loop.
+
 ## [0.1.2] — 2026-05-21
 
 A second cleanup pass focused on making the public repo welcoming to outside

@@ -93,7 +93,25 @@ public partial class SettingsWindow : Window
         settings.CheckIntervalMinutes = minutes;
         settings.AutostartEnabled = AutostartBox.IsChecked == true;
         settings.FirstRunCompleted = true;
-        _settingsStore.Save(settings);
+
+        try
+        {
+            _settingsStore.Save(settings);
+        }
+        catch (Exception ex)
+        {
+            // Why surface this: the dialog closes on success, so a silent
+            // throw here would close-and-look-saved while nothing was written.
+            // Disk-full, AV holding the file, and read-only %APPDATA% are all
+            // plausible failures we want the user to see.
+            MessageBox.Show(
+                $"Couldn't save settings: {ex.Message}\n\n" +
+                "Check that %APPDATA%\\VerseStrings is writable and try again.",
+                "Save failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            return;
+        }
 
         DialogResult = true;
         Close();

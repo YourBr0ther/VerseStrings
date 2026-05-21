@@ -43,17 +43,38 @@ public sealed class UpdateOrchestrator : IDisposable
 
     private async Task LoopAsync(CancellationToken ct)
     {
-        await Task.Delay(TimeSpan.FromSeconds(5), ct);
+        try { await Task.Delay(TimeSpan.FromSeconds(5), ct); }
+        catch (OperationCanceledException) { return; }
 
         while (!ct.IsCancellationRequested)
         {
-            await RunCheckAsync(ct);
+            try
+            {
+                await RunCheckAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                // Why catch-all: this loop is the only thing keeping the
+                // watcher alive. Anything that escapes — a transient HTTP
+                // exception, a JSON parse error in settings.json, an
+                // unexpected I/O failure — must not kill polling forever.
+                _toast.Show("Update check failed", ex.Message);
+            }
 
-            var settings = _settings.Load();
-            var interval = TimeSpan.FromMinutes(Math.Max(1, settings.CheckIntervalMinutes));
+            var interval = TimeSpan.FromMinutes(Math.Max(1, LoadIntervalMinutesSafe()));
             try { await Task.Delay(interval, ct); }
             catch (OperationCanceledException) { return; }
         }
+    }
+
+    private int LoadIntervalMinutesSafe()
+    {
+        try { return _settings.Load().CheckIntervalMinutes; }
+        catch { return 15; }
     }
 
     private async Task RunCheckAsync(CancellationToken ct)
@@ -93,6 +114,10 @@ public sealed class UpdateOrchestrator : IDisposable
                 _toast.Show(
                     "VerseStrings updated",
                     $"Installed \"{result.ReleaseName}\" — {result.FilesInstalled} files. Backup saved.");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

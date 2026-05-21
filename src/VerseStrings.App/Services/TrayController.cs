@@ -37,8 +37,14 @@ public sealed class TrayController : IDisposable
         _shutdown = shutdown;
 
         _statusItem = new ToolStripMenuItem("Idle") { Enabled = false };
-        _checkNowItem = new ToolStripMenuItem("Check for updates now", null, async (_, _) => await OnCheckNow());
-        _autostartItem = new ToolStripMenuItem("Start with Windows", null, (_, _) => OnToggleAutostart())
+        _checkNowItem = new ToolStripMenuItem(
+            "Check for updates now",
+            null,
+            async (_, _) => await SafeInvokeAsync("Update check failed", OnCheckNow));
+        _autostartItem = new ToolStripMenuItem(
+            "Start with Windows",
+            null,
+            (_, _) => SafeInvoke("Couldn't update autostart", OnToggleAutostart))
         {
             CheckOnClick = true,
             Checked = _autostart.IsEnabled(),
@@ -52,7 +58,8 @@ public sealed class TrayController : IDisposable
             ContextMenuStrip = BuildMenu(),
         };
 
-        _orchestrator.StatusChanged += (_, _) => Application.Current.Dispatcher.Invoke(RefreshStatus);
+        _orchestrator.StatusChanged += (_, _) =>
+            Application.Current.Dispatcher.Invoke(() => SafeInvoke("Status refresh failed", RefreshStatus));
     }
 
     private ContextMenuStrip BuildMenu()
@@ -61,20 +68,28 @@ public sealed class TrayController : IDisposable
         menu.Items.Add(_statusItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_checkNowItem);
-        menu.Items.Add(new ToolStripMenuItem("Settings…", null, (_, _) => OnOpenSettings()));
-        menu.Items.Add(new ToolStripMenuItem("Restore previous version", null, (_, _) => OnRestoreBackup()));
+        menu.Items.Add(new ToolStripMenuItem(
+            "Settings…", null,
+            (_, _) => SafeInvoke("Couldn't open Settings", OnOpenSettings)));
+        menu.Items.Add(new ToolStripMenuItem(
+            "Restore previous version", null,
+            (_, _) => SafeInvoke("Restore failed", OnRestoreBackup)));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_autostartItem);
-        menu.Items.Add(new ToolStripMenuItem("Open backups folder", null, (_, _) => OnOpenBackupsFolder()));
+        menu.Items.Add(new ToolStripMenuItem(
+            "Open backups folder", null,
+            (_, _) => SafeInvoke("Couldn't open backups folder", OnOpenBackupsFolder)));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(new ToolStripMenuItem("Quit", null, (_, _) => _shutdown()));
+        menu.Items.Add(new ToolStripMenuItem(
+            "Quit", null,
+            (_, _) => SafeInvoke("Shutdown failed", _shutdown)));
         return menu;
     }
 
     public void Show()
     {
         _icon.Visible = true;
-        RefreshStatus();
+        SafeInvoke("Status refresh failed", RefreshStatus);
     }
 
     public void ShowSelfUpdateAvailable(Version newVersion)
@@ -85,11 +100,18 @@ public sealed class TrayController : IDisposable
         _selfUpdateItem = new ToolStripMenuItem(
             $"⬇ Update VerseStrings to v{newVersion}",
             null,
-            (_, _) => Process.Start(new ProcessStartInfo { FileName = SelfUpdater.ReleasesPageUrl, UseShellExecute = true }));
+            (_, _) => SafeInvoke("Couldn't open releases page", OpenReleasesPage));
 
         menu.Items.Insert(0, _selfUpdateItem);
         menu.Items.Insert(1, new ToolStripSeparator());
     }
+
+    private static void OpenReleasesPage() =>
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = SelfUpdater.ReleasesPageUrl,
+            UseShellExecute = true,
+        });
 
     private async Task OnCheckNow()
     {
@@ -102,7 +124,7 @@ public sealed class TrayController : IDisposable
         finally
         {
             _checkNowItem.Enabled = true;
-            RefreshStatus();
+            SafeInvoke("Status refresh failed", RefreshStatus);
         }
     }
 
@@ -110,9 +132,15 @@ public sealed class TrayController : IDisposable
     {
         var window = new SettingsWindow(_settingsStore, hint: null, isFirstRun: false);
         window.ShowDialog();
-        _autostart.Sync(_settingsStore.Load().AutostartEnabled);
+
+        var desired = _settingsStore.Load().AutostartEnabled;
+        if (!_autostart.Sync(desired))
+        {
+            _toast.Show("Couldn't update autostart",
+                "Windows refused the registry change. Try toggling it from the tray menu.");
+        }
         _autostartItem.Checked = _autostart.IsEnabled();
-        RefreshStatus();
+        SafeInvoke("Status refresh failed", RefreshStatus);
     }
 
     private void OnRestoreBackup()
@@ -130,17 +158,23 @@ public sealed class TrayController : IDisposable
             return;
         }
 
-        try
+        var result = _installer.RestoreBackup(backup, settings.LiveFolderPath!);
+
+        settings.LastAppliedSha256 = null;
+        settings.LastAppliedReleaseName = "(restored from backup)";
+        _settingsStore.Save(settings);
+
+        if (result.FailedFiles.Count == 0)
         {
-            _installer.RestoreBackup(backup, settings.LiveFolderPath!);
-            settings.LastAppliedSha256 = null;
-            settings.LastAppliedReleaseName = "(restored from backup)";
-            _settingsStore.Save(settings);
-            _toast.Show("Restored", $"Restored backup from {Path.GetFileName(backup)}.");
+            _toast.Show("Restored",
+                $"Restored {result.FilesRestored} file(s) from {Path.GetFileName(backup)}.");
         }
-        catch (Exception ex)
+        else
         {
-            _toast.Show("Restore failed", ex.Message);
+            _toast.Show("Restored with errors",
+                $"Restored {result.FilesRestored} file(s) from {Path.GetFileName(backup)}; " +
+                $"{result.FailedFiles.Count} could not be written (game running or files locked?). " +
+                "Try again with Star Citizen closed.");
         }
     }
 
@@ -149,7 +183,13 @@ public sealed class TrayController : IDisposable
         var settings = _settingsStore.Load();
         settings.AutostartEnabled = _autostartItem.Checked;
         _settingsStore.Save(settings);
-        _autostart.Sync(settings.AutostartEnabled);
+        if (!_autostart.Sync(settings.AutostartEnabled))
+        {
+            // Revert visible state so the menu doesn't lie about what's actually set.
+            _autostartItem.Checked = _autostart.IsEnabled();
+            _toast.Show("Couldn't update autostart",
+                "Windows refused the registry change. The setting was not applied.");
+        }
     }
 
     private void OnOpenBackupsFolder()
@@ -172,6 +212,24 @@ public sealed class TrayController : IDisposable
             ? $"Last installed: {name}"
             : "No installs yet";
         _statusItem.Text = label;
+    }
+
+    private void SafeInvoke(string failureTitle, Action body)
+    {
+        try { body(); }
+        catch (Exception ex)
+        {
+            _toast.Show(failureTitle, ex.Message);
+        }
+    }
+
+    private async Task SafeInvokeAsync(string failureTitle, Func<Task> body)
+    {
+        try { await body(); }
+        catch (Exception ex)
+        {
+            _toast.Show(failureTitle, ex.Message);
+        }
     }
 
     private static Icon LoadIcon()

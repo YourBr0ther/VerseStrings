@@ -1,5 +1,8 @@
 using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using VerseStrings.Core;
 using VerseStrings.Services;
 using VerseStrings.Views;
@@ -15,10 +18,13 @@ public partial class App : Application
     private UpdateOrchestrator? _orchestrator;
     private HttpClient? _http;
     private SettingsStore? _settingsStore;
+    private ToastService? _toast;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        HookGlobalExceptionHandlers();
 
         _singleInstanceMutex = new Mutex(initiallyOwned: true, SingleInstanceMutexName, out var createdNew);
         if (!createdNew)
@@ -33,7 +39,31 @@ public partial class App : Application
         }
 
         _settingsStore = SettingsStore.Default();
-        var settings = _settingsStore.Load();
+
+        AppSettings settings;
+        try
+        {
+            settings = _settingsStore.Load();
+        }
+        catch (JsonException ex)
+        {
+            // Why: SettingsStore deliberately throws on corrupt JSON rather
+            // than silently overwriting with defaults. At startup that throw
+            // would otherwise dump a stack trace on the user. Surface a clean
+            // message pointing at the file so they can fix or delete it.
+            var path = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                Branding.AppName, "settings.json");
+            MessageBox.Show(
+                $"Couldn't read your VerseStrings settings — the file looks corrupted.\n\n" +
+                $"File: {path}\n\nDetails: {ex.Message}\n\n" +
+                "Fix the file or delete it (the app will recreate it on next launch).",
+                "Settings file is corrupted",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            Shutdown();
+            return;
+        }
 
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         var github = new GithubReleaseClient(_http);
@@ -44,11 +74,11 @@ public partial class App : Application
         Directory.CreateDirectory(backupsRoot);
 
         var installer = new Installer(github, backupsRoot);
-        var toast = new ToastService();
+        _toast = new ToastService();
         var processWatcher = new ProcessWatcher();
         var autostart = new AutostartService();
 
-        _orchestrator = new UpdateOrchestrator(_settingsStore, github, installer, toast, processWatcher);
+        _orchestrator = new UpdateOrchestrator(_settingsStore, github, installer, _toast, processWatcher);
 
         if (!settings.FirstRunCompleted)
         {
@@ -62,13 +92,47 @@ public partial class App : Application
             settingsStore: _settingsStore,
             orchestrator: _orchestrator,
             installer: installer,
-            toast: toast,
+            toast: _toast,
             autostart: autostart,
             shutdown: Shutdown);
         _tray.Show();
 
         _orchestrator.Start();
-        _ = CheckSelfUpdateAsync(new SelfUpdater(_http), toast);
+        _ = CheckSelfUpdateAsync(new SelfUpdater(_http), _toast);
+    }
+
+    private void HookGlobalExceptionHandlers()
+    {
+        // Why hook all three: any one of them can fire on its own.
+        //   - DispatcherUnhandledException: WPF UI-thread exceptions.
+        //   - TaskScheduler.UnobservedTaskException: faulted Tasks no one awaited.
+        //   - AppDomain.UnhandledException: everything else (background threads,
+        //     finalizers). This one can't actually prevent process termination
+        //     on modern .NET, but it still gives us one last chance to tell
+        //     the user *why* before the process dies.
+        DispatcherUnhandledException += (_, ev) =>
+        {
+            ReportUnhandled("Unexpected error", ev.Exception);
+            ev.Handled = true;
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, ev) =>
+        {
+            ReportUnhandled("Background task failed", ev.Exception);
+            ev.SetObserved();
+        };
+
+        AppDomain.CurrentDomain.UnhandledException += (_, ev) =>
+        {
+            if (ev.ExceptionObject is Exception ex)
+                ReportUnhandled("Fatal error", ex);
+        };
+    }
+
+    private void ReportUnhandled(string title, Exception ex)
+    {
+        try { _toast?.Show(title, ex.Message); }
+        catch { /* last-gasp; never let the reporter throw */ }
     }
 
     private async Task CheckSelfUpdateAsync(SelfUpdater updater, ToastService toast)
