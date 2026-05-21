@@ -36,19 +36,11 @@ public sealed class SelfUpdater
         var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
         if (string.IsNullOrWhiteSpace(payload?.TagName)) return false;
 
-        var latest = ParseSemverPrefix(payload.TagName);
+        var latest = VersionParser.TryParseTag(payload.TagName);
         if (latest is null) return false;
 
         LatestVersion = latest;
         return latest.CompareTo(CurrentVersion) > 0;
-    }
-
-    private static Version? ParseSemverPrefix(string tag)
-    {
-        var trimmed = tag.TrimStart('v', 'V');
-        var dashIdx = trimmed.IndexOf('-');
-        if (dashIdx >= 0) trimmed = trimmed[..dashIdx];
-        return Version.TryParse(trimmed, out var v) ? v : null;
     }
 
     private sealed class ReleasePayload

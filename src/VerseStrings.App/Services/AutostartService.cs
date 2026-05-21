@@ -1,11 +1,12 @@
 using Microsoft.Win32;
+using VerseStrings.Core;
 
 namespace VerseStrings.Services;
 
 public sealed class AutostartService
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "VerseStrings";
+    private const string ValueName = Branding.AppName;
 
     public bool IsEnabled()
     {

@@ -14,6 +14,7 @@
     <RootNamespace>VerseStrings</RootNamespace>
     <Version>0.1.0</Version>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

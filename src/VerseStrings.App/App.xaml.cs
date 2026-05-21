@@ -8,7 +8,7 @@ namespace VerseStrings;
 
 public partial class App : Application
 {
-    private const string SingleInstanceMutexName = "Global\\VerseStrings.SingleInstance";
+    private const string SingleInstanceMutexName = $"Global\\{Branding.AppName}.SingleInstance";
 
     private Mutex? _singleInstanceMutex;
     private TrayController? _tray;
@@ -40,7 +40,7 @@ public partial class App : Application
 
         var backupsRoot = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "VerseStrings", "backups");
+            Branding.AppName, "backups");
         Directory.CreateDirectory(backupsRoot);
 
         var installer = new Installer(github, backupsRoot);

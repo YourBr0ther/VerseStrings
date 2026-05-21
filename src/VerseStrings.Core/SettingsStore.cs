@@ -21,7 +21,7 @@ public sealed class SettingsStore
     {
         var dir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "VerseStrings");
+            Branding.AppName);
         Directory.CreateDirectory(dir);
         return new SettingsStore(Path.Combine(dir, "settings.json"));
     }

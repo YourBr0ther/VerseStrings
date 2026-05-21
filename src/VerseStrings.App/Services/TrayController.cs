@@ -36,44 +36,39 @@ public sealed class TrayController : IDisposable
         _autostart = autostart;
         _shutdown = shutdown;
 
-        _icon = new NotifyIcon
-        {
-            Icon = LoadIcon(),
-            Text = "VerseStrings",
-            Visible = false,
-        };
-
-        var menu = new ContextMenuStrip();
-
         _statusItem = new ToolStripMenuItem("Idle") { Enabled = false };
-        menu.Items.Add(_statusItem);
-        menu.Items.Add(new ToolStripSeparator());
-
         _checkNowItem = new ToolStripMenuItem("Check for updates now", null, async (_, _) => await OnCheckNow());
-        menu.Items.Add(_checkNowItem);
-
-        var settingsItem = new ToolStripMenuItem("Settings…", null, (_, _) => OnOpenSettings());
-        menu.Items.Add(settingsItem);
-
-        menu.Items.Add(new ToolStripMenuItem("Restore previous version", null, (_, _) => OnRestoreBackup()));
-
-        menu.Items.Add(new ToolStripSeparator());
-
         _autostartItem = new ToolStripMenuItem("Start with Windows", null, (_, _) => OnToggleAutostart())
         {
             CheckOnClick = true,
             Checked = _autostart.IsEnabled(),
         };
+
+        _icon = new NotifyIcon
+        {
+            Icon = LoadIcon(),
+            Text = Branding.AppName,
+            Visible = false,
+            ContextMenuStrip = BuildMenu(),
+        };
+
+        _orchestrator.StatusChanged += (_, _) => Application.Current.Dispatcher.Invoke(RefreshStatus);
+    }
+
+    private ContextMenuStrip BuildMenu()
+    {
+        var menu = new ContextMenuStrip();
+        menu.Items.Add(_statusItem);
+        menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(_checkNowItem);
+        menu.Items.Add(new ToolStripMenuItem("Settings…", null, (_, _) => OnOpenSettings()));
+        menu.Items.Add(new ToolStripMenuItem("Restore previous version", null, (_, _) => OnRestoreBackup()));
+        menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_autostartItem);
-
-        var openBackupsItem = new ToolStripMenuItem("Open backups folder", null, (_, _) => OnOpenBackupsFolder());
-        menu.Items.Add(openBackupsItem);
-
+        menu.Items.Add(new ToolStripMenuItem("Open backups folder", null, (_, _) => OnOpenBackupsFolder()));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem("Quit", null, (_, _) => _shutdown()));
-
-        _icon.ContextMenuStrip = menu;
-        _orchestrator.StatusChanged += (_, _) => Application.Current.Dispatcher.Invoke(RefreshStatus);
+        return menu;
     }
 
     public void Show()
@@ -161,7 +156,7 @@ public sealed class TrayController : IDisposable
     {
         var path = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "VerseStrings", "backups");
+            Branding.AppName, "backups");
         Directory.CreateDirectory(path);
         Process.Start(new ProcessStartInfo
         {
