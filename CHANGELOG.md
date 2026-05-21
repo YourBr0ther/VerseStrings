@@ -35,7 +35,7 @@ A cleanup release. No new user-facing features — everything in this version is
 
 ### Fixed
 - Brand leak: the installer's temp directory prefix was still `starstrings-{Guid}` from before the rebrand. Now `versestrings-`.
-- `actions/checkout` bumped from v4 to v5 and `actions/setup-dotnet` from v4 to v6 in the release workflow, resolving the Node 20 deprecation warning from GitHub Actions.
+- `actions/checkout` bumped from v4 to v6 and `actions/setup-dotnet` from v4 to v5 in the release workflow, resolving the Node 20 deprecation warning from GitHub Actions. Both are Node 24-compatible majors and both publish a major-version alias.
 
 ## [0.1.0] — 2026-05-21
 
