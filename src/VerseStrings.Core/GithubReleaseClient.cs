@@ -14,7 +14,7 @@ public sealed class GithubReleaseClient
         _http = http;
     }
 
-    public async Task<ReleaseInfo?> GetLatestAsync(string repo, string assetName, CancellationToken ct = default)
+    public async Task<ReleaseInfo?> GetLatestAsync(string repo, string assetPattern, CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
         req.Headers.UserAgent.ParseAdd(UserAgent);
@@ -26,9 +26,16 @@ public sealed class GithubReleaseClient
         var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
         if (payload is null || string.IsNullOrWhiteSpace(payload.TagName)) return null;
 
-        var asset = payload.Assets.FirstOrDefault(a =>
-            string.Equals(a.Name, assetName, StringComparison.OrdinalIgnoreCase));
-        if (asset is null || string.IsNullOrWhiteSpace(asset.BrowserDownloadUrl)) return null;
+        var assetNames = payload.Assets
+            .Select(a => a.Name)
+            .Where(n => !string.IsNullOrEmpty(n))
+            .Cast<string>();
+        var matchedName = AssetMatcher.SelectFirst(assetNames, assetPattern);
+        if (matchedName is null) return null;
+
+        var asset = payload.Assets.First(a =>
+            string.Equals(a.Name, matchedName, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(asset.BrowserDownloadUrl)) return null;
 
         var sha256 = ExtractSha256(asset.Digest);
         if (sha256 is null) return null;

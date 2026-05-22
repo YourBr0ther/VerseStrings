@@ -10,5 +10,17 @@ public sealed class AppSettings
     public bool AutostartEnabled { get; set; }
     public bool FirstRunCompleted { get; set; }
 
-    public string Repo { get; set; } = "MrKraken/StarStrings";
+    /// <summary>
+    /// Stable ID of the selected pack (see <see cref="Packs.All"/>).
+    /// Defaults to <see cref="Packs.DefaultId"/> for fresh installs;
+    /// for upgrades from &lt;= v0.1.4 the value is inferred from
+    /// the legacy <see cref="Repo"/> field by <c>SettingsStore.Load</c>.
+    /// </summary>
+    public string SelectedPackId { get; set; } = Packs.DefaultId;
+
+    /// <summary>
+    /// Legacy field from v0.1.4 and earlier. Retained for one release so
+    /// upgrade migration can read it. Slated for removal in v0.1.6.
+    /// </summary>
+    public string? Repo { get; set; }
 }
