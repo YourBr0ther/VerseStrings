@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+- README updated to reflect the current tray menu (the previous list dated
+  from v0.1.0 and was missing the pack picker, settings, and open-backups
+  entries) and to mention that the app self-checks for new VerseStrings
+  releases on launch. "How it works" intro tightened from "a community
+  localization repo" to "your selected pack's GitHub repo" so multi-pack
+  semantics are clear up front.
+
 ## [0.1.14] — 2026-05-22
 
 Public-friendliness polish. No app behavior change.

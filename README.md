@@ -17,11 +17,12 @@ Auto-installs community localization packs for Star Citizen. Watches GitHub for 
 
 ## How it works
 
-- Polls a community localization repo every 15 minutes (configurable).
+- Polls your selected pack's GitHub repo every 15 minutes (configurable).
 - When a release drops:
   - **Game closed** → backs up your files, applies the update, toast.
   - **Game running** → toast announces pending update; applies when you quit.
 - Never overwrites your `user.cfg`. Only appends `g_language = english` if missing.
+- Checks for new VerseStrings releases on launch and surfaces a tray menu entry plus a toast when one is available — click it to land on the GitHub release page.
 
 ## Supported packs
 
@@ -40,7 +41,7 @@ Grab `VerseStringsSetup-X.Y.Z.exe` from [Releases](../../releases). Per-user ins
 
 SmartScreen may warn the publisher is unverified — **More info → Run anyway**.
 
-On first launch the app auto-detects your `StarCitizen\LIVE` folder or prompts you to pick it. Tray icon has check-for-updates, restore-backup, and start-with-Windows.
+On first launch the app auto-detects your `StarCitizen\LIVE` folder (or prompts you to pick it) and asks which pack you want to start with. The tray icon menu includes: check-for-updates, pack picker, restore-previous, settings, open-backups, autostart toggle.
 
 ## What it touches
 
