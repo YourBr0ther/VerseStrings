@@ -98,13 +98,12 @@ public sealed class TrayController : IDisposable
 
         foreach (var pack in Packs.All)
         {
-            var capturedPack = pack;
             var item = new ToolStripMenuItem(
                 pack.Label,
                 null,
                 async (_, _) => await SafeInvokeAsync(
                     "Couldn't switch pack",
-                    () => OnSelectPack(capturedPack)))
+                    () => OnSelectPack(pack)))
             {
                 Checked = string.Equals(pack.Id, selectedId, StringComparison.Ordinal),
             };

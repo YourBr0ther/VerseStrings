@@ -22,7 +22,9 @@ public sealed class Installer
         if (!Directory.Exists(liveFolderPath))
             throw new DirectoryNotFoundException($"LIVE folder not found: {liveFolderPath}");
 
-        var tempRoot = Path.Combine(Path.GetTempPath(), $"versestrings-{Guid.NewGuid():N}");
+        var tempRoot = Path.Combine(
+            Path.GetTempPath(),
+            $"{Branding.AppName.ToLowerInvariant()}-{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempRoot);
         var zipPath = Path.Combine(tempRoot, release.AssetName);
         var extractDir = Path.Combine(tempRoot, "extracted");
@@ -214,7 +216,13 @@ public sealed class Installer
         return false;
     }
 
-    private static string ResolveSourceRoot(string extractRoot)
+    /// <summary>
+    /// Pack zips usually put <c>user.cfg</c> and <c>data/</c> at the top level,
+    /// but some upstreams wrap everything in a single named subdirectory. This
+    /// peels that wrapper off so <see cref="ApplyExtracted"/> sees the same
+    /// layout in either case. Public for testing.
+    /// </summary>
+    public static string ResolveSourceRoot(string extractRoot)
     {
         if (File.Exists(Path.Combine(extractRoot, "user.cfg")) ||
             Directory.Exists(Path.Combine(extractRoot, "data")))

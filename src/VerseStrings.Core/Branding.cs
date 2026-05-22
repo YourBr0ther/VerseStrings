@@ -17,8 +17,8 @@ public static class Branding
     /// <summary>
     /// GitHub <c>owner/repo</c> the app checks for its own updates. Forks change
     /// this so the self-update check points at their own release stream rather
-    /// than upstream. The <i>content</i> upstream (the localization pack) lives
-    /// separately in <see cref="AppSettings.Repo"/>.
+    /// than upstream. The <i>content</i> upstream (the localization packs) lives
+    /// in <see cref="Packs.All"/>, selected via <see cref="AppSettings.SelectedPackId"/>.
     /// </summary>
     public const string SelfUpdateRepo = "YourBr0ther/VerseStrings";
 }

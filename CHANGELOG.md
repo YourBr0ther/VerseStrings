@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.13] — 2026-05-22
+
+A senior-engineer audit pass. No user-facing behavior change.
+
+### Removed
+- `AppSettings.Repo`, `SettingsStore.MigrateLegacyRepoToPackId`, the `Save`-
+  clears-`Repo` shim, and the two test classes covering them. The migration
+  existed to carry v0.1.4 users' pack choice forward when v0.1.5 introduced
+  `SelectedPackId`. The project hadn't gone public when v0.1.4 shipped, so
+  no v0.1.4 install ever needed migrating; the shim was dead weight.
+- The `var capturedPack = pack` line inside `TrayController.BuildPackMenu`'s
+  `foreach`. C# 5 (2012) made `foreach` create a fresh loop variable each
+  iteration, so the defensive copy has been redundant for 13 years.
+
+### Changed
+- `Branding.SelfUpdateRepo` XML doc cref pointed at the now-deleted
+  `AppSettings.Repo`. Updated to point at `Packs.All` and
+  `AppSettings.SelectedPackId` — where the localization-pack upstream
+  actually lives now.
+- `UpdateOrchestrator` field `_settings` renamed to `_settingsStore` for
+  consistency with the rest of the codebase. The field is a `SettingsStore`,
+  not an `AppSettings`, and every other class spells it `_settingsStore`.
+  Constructor parameter renamed to match.
+- `Installer` temp directory prefix now uses
+  `Branding.AppName.ToLowerInvariant()` instead of the hardcoded literal
+  `"versestrings-"`. CLAUDE.md says the brand string belongs in `Branding`,
+  full stop; this was the last holdout. Same shape of bug that produced
+  the `"starstrings-"` brand-leak fixed in v0.1.1.
+
+### Added
+- `Installer.ResolveSourceRoot` is now `public static` (matching `ShouldInstall`
+  and `TryResolveSafeEntryPath` — same "public for testing" convention) and
+  covered by `InstallerResolveSourceRootTests`: 5 cases pinning down the
+  wrapper-subdir peel behavior so the next pack maintainer who ships a
+  wrapper layout doesn't silently break the install.
+
 ## [0.1.12] — 2026-05-22
 
 ### Changed
@@ -303,7 +339,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...v0.1.10

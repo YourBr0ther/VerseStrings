@@ -4,7 +4,7 @@ namespace VerseStrings.Services;
 
 public sealed class UpdateOrchestrator : IDisposable
 {
-    private readonly SettingsStore _settings;
+    private readonly SettingsStore _settingsStore;
     private readonly GithubReleaseClient _github;
     private readonly Installer _installer;
     private readonly ToastService _toast;
@@ -14,13 +14,13 @@ public sealed class UpdateOrchestrator : IDisposable
     private readonly SemaphoreSlim _checkLock = new(1, 1);
 
     public UpdateOrchestrator(
-        SettingsStore settings,
+        SettingsStore settingsStore,
         GithubReleaseClient github,
         Installer installer,
         ToastService toast,
         ProcessWatcher processWatcher)
     {
-        _settings = settings;
+        _settingsStore = settingsStore;
         _github = github;
         _installer = installer;
         _toast = toast;
@@ -48,10 +48,10 @@ public sealed class UpdateOrchestrator : IDisposable
     /// </summary>
     public async Task SwitchPackAsync(Pack pack, CancellationToken ct = default)
     {
-        var settings = _settings.Load();
+        var settings = _settingsStore.Load();
         settings.SelectedPackId = pack.Id;
         settings.LastAppliedSha256 = null;
-        _settings.Save(settings);
+        _settingsStore.Save(settings);
 
         await RunCheckAsync(ct);
     }
@@ -88,7 +88,7 @@ public sealed class UpdateOrchestrator : IDisposable
 
     private int LoadIntervalMinutesSafe()
     {
-        try { return _settings.Load().CheckIntervalMinutes; }
+        try { return _settingsStore.Load().CheckIntervalMinutes; }
         catch { return 15; }
     }
 
@@ -97,7 +97,7 @@ public sealed class UpdateOrchestrator : IDisposable
         if (!await _checkLock.WaitAsync(0, ct)) return;
         try
         {
-            var settings = _settings.Load();
+            var settings = _settingsStore.Load();
             if (string.IsNullOrWhiteSpace(settings.LiveFolderPath))
                 return;
 
@@ -121,11 +121,11 @@ public sealed class UpdateOrchestrator : IDisposable
             {
                 var result = await _installer.InstallAsync(release, settings.LiveFolderPath!, ct);
 
-                settings = _settings.Load();
+                settings = _settingsStore.Load();
                 settings.LastAppliedSha256 = result.Sha256;
                 settings.LastAppliedReleaseName = result.ReleaseName;
                 settings.LastAppliedAt = DateTimeOffset.UtcNow;
-                _settings.Save(settings);
+                _settingsStore.Save(settings);
 
                 _toast.Show(
                     "VerseStrings updated",

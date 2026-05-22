@@ -32,7 +32,6 @@ public class SettingsStoreTests : IDisposable
         Assert.False(settings.AutostartEnabled);
         Assert.False(settings.FirstRunCompleted);
         Assert.Equal("StarStrings", settings.SelectedPackId);
-        Assert.Null(settings.Repo); // legacy field is null on fresh installs
     }
 
     [Fact]
@@ -81,42 +80,6 @@ public class SettingsStoreTests : IDisposable
         Assert.Equal(original.AutostartEnabled, loaded.AutostartEnabled);
         Assert.Equal(original.FirstRunCompleted, loaded.FirstRunCompleted);
         Assert.Equal(original.SelectedPackId, loaded.SelectedPackId);
-    }
-
-    [Theory]
-    [InlineData("MrKraken/StarStrings",         "StarStrings")]
-    [InlineData("ExoAE/ScCompLangPack",         "ScCompLangPack")]
-    [InlineData("BeltaKoda/ScCompLangPackRemix","ScCompLangPackRemix")]
-    [InlineData("some/unknown",                 "StarStrings")]
-    public void Load_MigratesLegacyRepoToSelectedPackId(string legacyRepo, string expectedPackId)
-    {
-        // Why: pre-v0.1.5 settings.json had no SelectedPackId. On upgrade we
-        // need to land the user on the pack their Repo field was pointing at,
-        // not silently snap everyone back to StarStrings.
-        File.WriteAllText(_settingsPath, $$"""
-            {
-              "liveFolderPath": "C:\\Games\\SC\\LIVE",
-              "checkIntervalMinutes": 15,
-              "repo": "{{legacyRepo}}"
-            }
-            """);
-
-        var settings = _store.Load();
-
-        Assert.Equal(expectedPackId, settings.SelectedPackId);
-    }
-
-    [Fact]
-    public void Save_ClearsLegacyRepoField()
-    {
-        // Why: keeping Repo populated after migration would let a subsequent
-        // load re-migrate and overwrite an explicit user switch.
-        var settings = new AppSettings { Repo = "ExoAE/ScCompLangPack" };
-        _store.Save(settings);
-
-        var json = File.ReadAllText(_settingsPath);
-
-        Assert.Contains("\"repo\": null", json);
     }
 
     [Fact]
