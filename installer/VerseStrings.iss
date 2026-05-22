@@ -74,11 +74,16 @@ Name: "{userdesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: deskto
 Name: "{userdesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Parameters: "--standalone"; Tasks: desktopicon and standaloneshortcut and not trayshortcut
 
 [Registry]
-; Why: a previous tray install may have enabled autostart, leaving an
-; HKCU Run-key value pointing at our exe. If the user reinstalls and
-; opts out of the tray task, that orphaned Run-key would still launch
-; VerseStrings (in tray mode by default) at every login. Delete it.
+; Why (install-time, conditional): a previous tray install may have enabled
+; autostart, leaving an HKCU Run-key value pointing at our exe. If the user
+; reinstalls and opts out of the tray task, that orphaned Run-key would
+; still launch VerseStrings (in tray mode by default) at every login.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#AppName}"; ValueType: none; Flags: deletevalue; Tasks: not trayshortcut
+; Why (uninstall, unconditional): if the user enabled autostart while using
+; the app, the Run-key value persists after uninstall pointing at a deleted
+; exe. Windows silently ignores it at login but it sticks around in Task
+; Manager → Startup apps as a disabled-looking entry. Scrub it.
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#AppName}"; ValueType: none; Flags: uninsdeletevalue
 
 [Run]
 ; Post-install launch honors the user's mode pick. If tray is selected,

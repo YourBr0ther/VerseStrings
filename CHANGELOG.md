@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+- Uninstaller now deletes the autostart `HKCU\Software\Microsoft\Windows\
+  CurrentVersion\Run\VerseStrings` value. Previously, if the user enabled
+  autostart at any point during the app's lifetime, the Run-key value
+  persisted after uninstall pointing at a deleted exe — Windows silently
+  ignored it at login but it remained visible in Task Manager → Startup
+  apps as a disabled-looking entry. The installer's `[Registry]` block
+  now has an unconditional `uninsdeletevalue` entry alongside the existing
+  conditional install-time cleanup from v0.1.16.
+
 ## [0.1.16] — 2026-05-22
 
 Standalone run mode.
