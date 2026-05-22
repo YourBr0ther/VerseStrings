@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.9] — 2026-05-22
+
+### Fixed
+- Highlighted/selected pack in the settings ComboBox dropdown was still
+  unreadable after the v0.1.8 dark-theme fix. The default `ComboBoxItem`
+  `ControlTemplate` overrides `Background` to `SystemColors.HighlightBrush`
+  (light blue) when `IsHighlighted` is true, so a style-level `Setter`
+  only colored the non-highlighted state — leaving near-white text on
+  light blue with no contrast. Added a custom `ControlTemplate` that
+  drives both states: dark background for the normal state, accent blue
+  (`#3d6dd0`) with white text for highlighted, matching the Save button.
+
 ## [0.1.8] — 2026-05-22
 
 ### Added
@@ -236,7 +248,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.5...v0.1.6
