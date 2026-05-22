@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.5] — 2026-05-22
+
 ### Added
 - Multi-pack support. The app can now install and update any of four community
   localization packs: **StarStrings** (MrKraken/StarStrings), **ScCompLangPack**
@@ -180,7 +182,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.1...v0.1.2
