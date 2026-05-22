@@ -4,8 +4,6 @@ namespace VerseStrings.Services;
 
 public sealed class UpdateOrchestrator : IDisposable
 {
-    private const string AssetName = "StarStrings.zip";
-
     private readonly SettingsStore _settings;
     private readonly GithubReleaseClient _github;
     private readonly Installer _installer;
@@ -39,6 +37,23 @@ public sealed class UpdateOrchestrator : IDisposable
     public async Task CheckNowAsync()
     {
         await RunCheckAsync(_cts.Token);
+    }
+
+    /// <summary>
+    /// Persist a new pack selection and trigger an immediate check. The
+    /// existing install/backup flow handles the actual file replacement —
+    /// clearing LastAppliedSha256 forces the next check to treat the new
+    /// pack's release as a fresh install even when the SHA happens to
+    /// match what's on disk.
+    /// </summary>
+    public async Task SwitchPackAsync(Pack pack, CancellationToken ct = default)
+    {
+        var settings = _settings.Load();
+        settings.SelectedPackId = pack.Id;
+        settings.LastAppliedSha256 = null;
+        _settings.Save(settings);
+
+        await RunCheckAsync(ct);
     }
 
     private async Task LoopAsync(CancellationToken ct)
@@ -86,7 +101,8 @@ public sealed class UpdateOrchestrator : IDisposable
             if (string.IsNullOrWhiteSpace(settings.LiveFolderPath))
                 return;
 
-            var release = await _github.GetLatestAsync(settings.Repo, AssetName, ct);
+            var pack = Packs.ById(settings.SelectedPackId) ?? Packs.Default;
+            var release = await _github.GetLatestAsync(pack.Repo, pack.AssetPattern, ct);
             if (release is null) return;
 
             if (string.Equals(release.AssetSha256, settings.LastAppliedSha256, StringComparison.OrdinalIgnoreCase))

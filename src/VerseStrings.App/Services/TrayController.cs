@@ -19,6 +19,8 @@ public sealed class TrayController : IDisposable
     private readonly ToolStripMenuItem _statusItem;
     private readonly ToolStripMenuItem _checkNowItem;
     private readonly ToolStripMenuItem _autostartItem;
+    private readonly ToolStripMenuItem _packMenu;
+    private readonly Dictionary<string, ToolStripMenuItem> _packItems = new();
     private ToolStripMenuItem? _selfUpdateItem;
 
     public TrayController(
@@ -50,6 +52,8 @@ public sealed class TrayController : IDisposable
             Checked = _autostart.IsEnabled(),
         };
 
+        _packMenu = BuildPackMenu();
+
         _icon = new NotifyIcon
         {
             Icon = LoadIcon(),
@@ -75,6 +79,7 @@ public sealed class TrayController : IDisposable
             "Restore previous version", null,
             (_, _) => SafeInvoke("Restore failed", OnRestoreBackup)));
         menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(_packMenu);
         menu.Items.Add(_autostartItem);
         menu.Items.Add(new ToolStripMenuItem(
             "Open backups folder", null,
@@ -84,6 +89,49 @@ public sealed class TrayController : IDisposable
             "Quit", null,
             (_, _) => SafeInvoke("Shutdown failed", _shutdown)));
         return menu;
+    }
+
+    private ToolStripMenuItem BuildPackMenu()
+    {
+        var parent = new ToolStripMenuItem("Localization pack");
+        var selectedId = _settingsStore.Load().SelectedPackId;
+
+        foreach (var pack in Packs.All)
+        {
+            var capturedPack = pack;
+            var item = new ToolStripMenuItem(
+                pack.DisplayName,
+                null,
+                async (_, _) => await SafeInvokeAsync(
+                    "Couldn't switch pack",
+                    () => OnSelectPack(capturedPack)))
+            {
+                Checked = string.Equals(pack.Id, selectedId, StringComparison.Ordinal),
+            };
+            _packItems[pack.Id] = item;
+            parent.DropDownItems.Add(item);
+        }
+
+        return parent;
+    }
+
+    private async Task OnSelectPack(Pack pack)
+    {
+        var settings = _settingsStore.Load();
+        if (string.Equals(settings.SelectedPackId, pack.Id, StringComparison.Ordinal))
+            return; // already on this pack — no-op rather than reinstall
+
+        _toast.Show("Switching pack", $"Switching to {pack.DisplayName}…");
+        SyncPackChecks(pack.Id);
+
+        await _orchestrator.SwitchPackAsync(pack);
+        SyncPackChecks(_settingsStore.Load().SelectedPackId);
+    }
+
+    private void SyncPackChecks(string activeId)
+    {
+        foreach (var (id, item) in _packItems)
+            item.Checked = string.Equals(id, activeId, StringComparison.Ordinal);
     }
 
     public void Show()

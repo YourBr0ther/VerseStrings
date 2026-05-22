@@ -35,6 +35,14 @@ public partial class SettingsWindow : Window
         LiveFolderBox.Text = settings.LiveFolderPath ?? hint ?? string.Empty;
         IntervalBox.Text = settings.CheckIntervalMinutes.ToString();
         AutostartBox.IsChecked = isFirstRun ? true : settings.AutostartEnabled;
+
+        foreach (var pack in Packs.All)
+            PackBox.Items.Add(pack.DisplayName);
+        var currentId = (Packs.ById(settings.SelectedPackId) ?? Packs.Default).Id;
+        for (var i = 0; i < Packs.All.Count; i++)
+        {
+            if (Packs.All[i].Id == currentId) { PackBox.SelectedIndex = i; break; }
+        }
     }
 
     private void OnBrowseClicked(object sender, RoutedEventArgs e)
@@ -93,6 +101,10 @@ public partial class SettingsWindow : Window
         settings.CheckIntervalMinutes = minutes;
         settings.AutostartEnabled = AutostartBox.IsChecked == true;
         settings.FirstRunCompleted = true;
+
+        var selectedIndex = PackBox.SelectedIndex;
+        if (selectedIndex >= 0 && selectedIndex < Packs.All.Count)
+            settings.SelectedPackId = Packs.All[selectedIndex].Id;
 
         try
         {

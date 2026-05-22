@@ -20,7 +20,16 @@ Auto-installs community localization packs for Star Citizen. Watches GitHub for 
   - **Game running** → toast announces pending update; applies when you quit.
 - Never overwrites your `user.cfg`. Only appends `g_language = english` if missing.
 
-Source: [MrKraken/StarStrings](https://github.com/MrKraken/StarStrings) — the community pack VerseStrings was built to deliver.
+## Supported packs
+
+Pick one at install time. Switch later from the tray menu (**Localization pack** submenu) — VerseStrings backs up the current pack and installs the new one.
+
+| Pack | Upstream |
+|---|---|
+| StarStrings | [MrKraken/StarStrings](https://github.com/MrKraken/StarStrings) |
+| ScCompLangPack | [ExoAE/ScCompLangPack](https://github.com/ExoAE/ScCompLangPack) |
+| ScCompLangPackRemix | [BeltaKoda/ScCompLangPackRemix](https://github.com/BeltaKoda/ScCompLangPackRemix) |
+| ScCompLangPackRemix2 | [ExoAE/ScCompLangPack](https://github.com/ExoAE/ScCompLangPack) |
 
 ## Install
 
@@ -67,8 +76,9 @@ Installer build: see [installer/README.md](installer/README.md).
 
 ## Credits
 
-- [MrKraken](https://github.com/MrKraken) — [StarStrings](https://github.com/MrKraken/StarStrings), the pack this tool was built to deliver.
-- [ExoAE](https://github.com/ExoAE/ScCompLangPack) — original community localization concept.
+- [MrKraken](https://github.com/MrKraken) — [StarStrings](https://github.com/MrKraken/StarStrings).
+- [ExoAE](https://github.com/ExoAE/ScCompLangPack) — [ScCompLangPack](https://github.com/ExoAE/ScCompLangPack) and ScCompLangPackRemix2.
+- [BeltaKoda](https://github.com/BeltaKoda) — [ScCompLangPackRemix](https://github.com/BeltaKoda/ScCompLangPackRemix).
 
 ## Disclaimer
 

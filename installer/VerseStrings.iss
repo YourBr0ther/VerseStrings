@@ -58,4 +58,37 @@ Name: "{group}\{#AppName}";        Filename: "{app}\{#AppExeName}"
 Name: "{userdesktop}\{#AppName}";  Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#AppExeName}"; Parameters: "--pack={code:GetSelectedPackId}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+var
+  PackPage: TInputOptionWizardPage;
+
+procedure InitializeWizard;
+begin
+  { Pack picker. Sits after the License page, before Ready-to-Install. }
+  PackPage := CreateInputOptionPage(
+    wpLicense,
+    'Localization pack',
+    'Choose which community pack to start with.',
+    'You can switch packs anytime from the tray menu after install.',
+    True,  { Exclusive: True => radio buttons. }
+    False); { ListBox: False => stacked radios, not a listbox. }
+  PackPage.Add('StarStrings');
+  PackPage.Add('ScCompLangPack');
+  PackPage.Add('ScCompLangPackRemix');
+  PackPage.Add('ScCompLangPackRemix2');
+  PackPage.SelectedValueIndex := 0;
+end;
+
+function GetSelectedPackId(Param: String): String;
+begin
+  case PackPage.SelectedValueIndex of
+    0: Result := 'StarStrings';
+    1: Result := 'ScCompLangPack';
+    2: Result := 'ScCompLangPackRemix';
+    3: Result := 'ScCompLangPackRemix2';
+  else
+    Result := 'StarStrings';
+  end;
+end;

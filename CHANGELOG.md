@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+- Multi-pack support. The app can now install and update any of four community
+  localization packs: **StarStrings** (MrKraken/StarStrings), **ScCompLangPack**
+  (ExoAE/ScCompLangPack), **ScCompLangPackRemix** (BeltaKoda/ScCompLangPackRemix),
+  and **ScCompLangPackRemix2** (ExoAE/ScCompLangPack). Single tool, four sources.
+- Installer wizard page after License lets the user pick their starting pack;
+  the choice rides into the first launch via a `--pack=<id>` arg and pre-selects
+  in the first-run wizard.
+- Tray menu gains a **Localization pack** submenu with the four packs as radio
+  items. Picking a different pack persists the choice, backs up the current
+  install (existing backup path), and installs the new pack immediately. The
+  game-running queue applies — switching while in-game queues until exit.
+- `Pack` record, `Packs.All` static catalog, and `AssetMatcher` helper for
+  exact-or-regex release-asset selection (BeltaKoda's pack has version-suffixed
+  asset names; the others have stable filenames).
+- Tests: `PacksTests`, `AssetMatcherTests`, plus migration coverage in
+  `SettingsStoreTests`.
+
+### Changed
+- `GithubReleaseClient.GetLatestAsync` now takes an asset *pattern* instead of
+  an exact name. Behavior is unchanged for stable filenames; the regex path is
+  only taken when the pattern contains regex metacharacters.
+- `AppSettings.SelectedPackId` (new) is canonical. The previous `Repo` field is
+  retained as a no-op shim that `SettingsStore.Load` reads once to migrate
+  v0.1.4 users to the equivalent pack ID, then `Save` zeroes it. Slated for
+  removal in v0.1.6 once the migration window has closed.
+
 ### Fixed
 - Tray icon now shows the actual VerseStrings icon on installed machines.
   The previous code read `Assets\icon.ico` from `AppContext.BaseDirectory`,

@@ -82,6 +82,7 @@ public partial class App : Application
 
         if (!settings.FirstRunCompleted)
         {
+            ApplyInstallerPackHint(settings, e.Args);
             RunFirstRunFlow();
             settings = _settingsStore.Load();
         }
@@ -162,6 +163,27 @@ public partial class App : Application
         var detected = GameLocator.TryDetectLiveFolder();
         var window = new SettingsWindow(_settingsStore!, detected, isFirstRun: true);
         window.ShowDialog();
+    }
+
+    /// <summary>
+    /// The installer's `[Run]` line passes `--pack=&lt;id&gt;` matching the user's
+    /// choice in the wizard. We pre-select that pack in settings before the
+    /// first-run dialog opens, so the user lands on the pack picker already
+    /// configured to what they just chose in the installer.
+    /// </summary>
+    private void ApplyInstallerPackHint(AppSettings settings, string[] args)
+    {
+        const string flag = "--pack=";
+        foreach (var arg in args)
+        {
+            if (!arg.StartsWith(flag, StringComparison.Ordinal)) continue;
+            var value = arg[flag.Length..];
+            if (Packs.ById(value) is null) return;
+
+            settings.SelectedPackId = value;
+            _settingsStore!.Save(settings);
+            return;
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
