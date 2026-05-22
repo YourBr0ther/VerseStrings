@@ -74,9 +74,11 @@ public partial class App : Application
 
         _orchestrator = new UpdateOrchestrator(_settingsStore, github, installer, _toast, processWatcher);
 
+        var startup = StartupArgs.Parse(e.Args);
+
         if (!settings.FirstRunCompleted)
         {
-            ApplyInstallerPackHint(settings, e.Args);
+            ApplyInstallerPackHint(settings, startup.PackHint);
             RunFirstRunFlow();
             settings = _settingsStore.Load();
         }
@@ -165,12 +167,11 @@ public partial class App : Application
     /// first-run dialog opens, so the user lands on the pack picker already
     /// configured to what they just chose in the installer.
     /// </summary>
-    private void ApplyInstallerPackHint(AppSettings settings, string[] args)
+    private void ApplyInstallerPackHint(AppSettings settings, string? packHint)
     {
-        var packId = InstallerArgs.TryGetPackId(args);
-        if (packId is null) return;
+        if (packHint is null) return;
 
-        settings.SelectedPackId = packId;
+        settings.SelectedPackId = packHint;
         _settingsStore!.Save(settings);
     }
 
