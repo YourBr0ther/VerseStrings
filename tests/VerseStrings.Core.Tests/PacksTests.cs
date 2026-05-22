@@ -41,4 +41,19 @@ public class PacksTests
         // surfaced by this test failing, not a silent expansion of the menu.
         Assert.Equal(4, Packs.All.Count);
     }
+
+    [Fact]
+    public void Label_CombinesNameAndAuthor()
+    {
+        // Why: three packs start with "ScCompLang..." — UI labels need the
+        // author to be distinguishable at a glance.
+        Assert.Equal("StarStrings (MrKraken)", Packs.ById("StarStrings")!.Label);
+        Assert.Equal("ScCompLangPackRemix (BeltaKoda)", Packs.ById("ScCompLangPackRemix")!.Label);
+    }
+
+    [Fact]
+    public void All_HaveNonEmptyAuthors()
+    {
+        Assert.All(Packs.All, p => Assert.False(string.IsNullOrWhiteSpace(p.Author)));
+    }
 }

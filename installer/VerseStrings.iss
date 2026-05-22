@@ -74,10 +74,10 @@ begin
     'You can switch packs anytime from the tray menu after install.',
     True,  { Exclusive: True => radio buttons. }
     False); { ListBox: False => stacked radios, not a listbox. }
-  PackPage.Add('StarStrings');
-  PackPage.Add('ScCompLangPack');
-  PackPage.Add('ScCompLangPackRemix');
-  PackPage.Add('ScCompLangPackRemix2');
+  PackPage.Add('StarStrings (MrKraken)');
+  PackPage.Add('ScCompLangPack (ExoAE)');
+  PackPage.Add('ScCompLangPackRemix (BeltaKoda)');
+  PackPage.Add('ScCompLangPackRemix2 (ExoAE)');
   PackPage.SelectedValueIndex := 0;
 end;
 

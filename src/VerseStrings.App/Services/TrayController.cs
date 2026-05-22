@@ -100,7 +100,7 @@ public sealed class TrayController : IDisposable
         {
             var capturedPack = pack;
             var item = new ToolStripMenuItem(
-                pack.DisplayName,
+                pack.Label,
                 null,
                 async (_, _) => await SafeInvokeAsync(
                     "Couldn't switch pack",

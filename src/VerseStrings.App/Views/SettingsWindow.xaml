@@ -26,6 +26,15 @@
             <Setter Property="BorderBrush" Value="#3a3a44" />
             <Setter Property="Padding" Value="6,4" />
         </Style>
+        <!-- Why ComboBoxItem also: WPF's default ComboBox template doesn't propagate
+             Background to items in the dropdown popup. Without this, items render
+             white-on-white (our near-white Foreground over the system default white
+             popup background) and are unreadable. -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#2a2a31" />
+            <Setter Property="Foreground" Value="#e8e8ec" />
+            <Setter Property="Padding" Value="6,4" />
+        </Style>
         <Style TargetType="Button">
             <Setter Property="Background" Value="#3a3a44" />
             <Setter Property="Foreground" Value="#e8e8ec" />

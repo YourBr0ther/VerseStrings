@@ -13,18 +13,21 @@ public static class Packs
         new Pack(
             Id: "StarStrings",
             DisplayName: "StarStrings",
+            Author: "MrKraken",
             Repo: "MrKraken/StarStrings",
             AssetPattern: "StarStrings.zip"),
 
         new Pack(
             Id: "ScCompLangPack",
             DisplayName: "ScCompLangPack",
+            Author: "ExoAE",
             Repo: "ExoAE/ScCompLangPack",
             AssetPattern: "ScCompLangPack.zip"),
 
         new Pack(
             Id: "ScCompLangPackRemix",
             DisplayName: "ScCompLangPackRemix",
+            Author: "BeltaKoda",
             Repo: "BeltaKoda/ScCompLangPackRemix",
             // Asset name is version-suffixed (e.g. ScCompLangPackRemix-4.8.0-LIVE.zip).
             // The LIVE anchor avoids picking up the parallel PTU release assets.
@@ -33,6 +36,7 @@ public static class Packs
         new Pack(
             Id: "ScCompLangPackRemix2",
             DisplayName: "ScCompLangPackRemix2",
+            Author: "ExoAE",
             Repo: "ExoAE/ScCompLangPack",
             AssetPattern: "ScCompLangPackRemix2.zip"),
     };

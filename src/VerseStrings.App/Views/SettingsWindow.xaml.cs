@@ -37,7 +37,7 @@ public partial class SettingsWindow : Window
         AutostartBox.IsChecked = isFirstRun ? true : settings.AutostartEnabled;
 
         foreach (var pack in Packs.All)
-            PackBox.Items.Add(pack.DisplayName);
+            PackBox.Items.Add(pack.Label);
         var currentId = (Packs.ById(settings.SelectedPackId) ?? Packs.Default).Id;
         for (var i = 0; i < Packs.All.Count; i++)
         {
