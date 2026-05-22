@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.7] — 2026-05-22
+
+### Changed
+- `--pack=<id>` parsing extracted from `App.xaml.cs` into
+  `VerseStrings.Core.InstallerArgs.TryGetPackId` so the installer-to-app
+  handoff can be unit-tested without a real install run. `InstallerArgsTests`
+  covers all four known pack ids, flag-among-unrelated-args, unknown/empty
+  values, and missing-flag cases. No behavior change.
+
+### Fixed
+- `AppSettings.Repo` XML doc and the v0.1.5 CHANGELOG note both claimed the
+  legacy field would be removed in v0.1.6. v0.1.6 deliberately didn't remove
+  it (v0.1.5 had barely shipped, so the migration window hadn't started).
+  Language now reads "removed in a future release once the v0.1.4-direct-
+  upgrade window has plausibly closed" — honest about the timing instead of
+  naming a version we already skipped past.
+
 ## [0.1.6] — 2026-05-22
 
 ### Fixed
@@ -201,7 +218,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.3...v0.1.4
