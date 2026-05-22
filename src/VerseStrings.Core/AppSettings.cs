@@ -19,8 +19,10 @@ public sealed class AppSettings
     public string SelectedPackId { get; set; } = Packs.DefaultId;
 
     /// <summary>
-    /// Legacy field from v0.1.4 and earlier. Retained for one release so
-    /// upgrade migration can read it. Slated for removal in v0.1.6.
+    /// Legacy field from v0.1.4 and earlier. Read once by SettingsStore.Load
+    /// to migrate older settings.json files onto <see cref="SelectedPackId"/>,
+    /// then cleared on Save. Will stay in the type until the v0.1.4-direct-
+    /// upgrade window has plausibly closed; remove in a future release.
     /// </summary>
     public string? Repo { get; set; }
 }

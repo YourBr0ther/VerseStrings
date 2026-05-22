@@ -173,17 +173,11 @@ public partial class App : Application
     /// </summary>
     private void ApplyInstallerPackHint(AppSettings settings, string[] args)
     {
-        const string flag = "--pack=";
-        foreach (var arg in args)
-        {
-            if (!arg.StartsWith(flag, StringComparison.Ordinal)) continue;
-            var value = arg[flag.Length..];
-            if (Packs.ById(value) is null) return;
+        var packId = InstallerArgs.TryGetPackId(args);
+        if (packId is null) return;
 
-            settings.SelectedPackId = value;
-            _settingsStore!.Save(settings);
-            return;
-        }
+        settings.SelectedPackId = packId;
+        _settingsStore!.Save(settings);
     }
 
     protected override void OnExit(ExitEventArgs e)

@@ -50,8 +50,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   only taken when the pattern contains regex metacharacters.
 - `AppSettings.SelectedPackId` (new) is canonical. The previous `Repo` field is
   retained as a no-op shim that `SettingsStore.Load` reads once to migrate
-  v0.1.4 users to the equivalent pack ID, then `Save` zeroes it. Slated for
-  removal in v0.1.6 once the migration window has closed.
+  v0.1.4 users to the equivalent pack ID, then `Save` zeroes it. Will be
+  removed in a future release once the v0.1.4-direct-upgrade window has
+  plausibly closed.
 
 ### Fixed
 - Tray icon now shows the actual VerseStrings icon on installed machines.
