@@ -16,14 +16,7 @@ public sealed class GithubReleaseClient
 
     public async Task<ReleaseInfo?> GetLatestAsync(string repo, string assetPattern, CancellationToken ct = default)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
-        req.Headers.UserAgent.ParseAdd(UserAgent);
-        req.Headers.Accept.ParseAdd("application/vnd.github+json");
-
-        using var resp = await _http.SendAsync(req, ct);
-        if (!resp.IsSuccessStatusCode) return null;
-
-        var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
+        var payload = await FetchLatestPayloadAsync(repo, ct);
         if (payload is null || string.IsNullOrWhiteSpace(payload.TagName)) return null;
 
         var assetNames = payload.Assets
@@ -46,6 +39,29 @@ public sealed class GithubReleaseClient
             AssetName: asset.Name!,
             AssetDownloadUrl: asset.BrowserDownloadUrl,
             AssetSha256: sha256);
+    }
+
+    /// <summary>
+    /// Returns the latest release's tag name, or <c>null</c> if the request
+    /// fails or the response is missing a tag. Used by the self-update check,
+    /// which doesn't care about asset metadata.
+    /// </summary>
+    public async Task<string?> GetLatestTagAsync(string repo, CancellationToken ct = default)
+    {
+        var payload = await FetchLatestPayloadAsync(repo, ct);
+        return string.IsNullOrWhiteSpace(payload?.TagName) ? null : payload.TagName;
+    }
+
+    private async Task<ReleasePayload?> FetchLatestPayloadAsync(string repo, CancellationToken ct)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
+        req.Headers.UserAgent.ParseAdd(UserAgent);
+        req.Headers.Accept.ParseAdd("application/vnd.github+json");
+
+        using var resp = await _http.SendAsync(req, ct);
+        if (!resp.IsSuccessStatusCode) return null;
+
+        return await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
     }
 
     public async Task DownloadAssetAsync(ReleaseInfo release, string destinationPath, CancellationToken ct = default)

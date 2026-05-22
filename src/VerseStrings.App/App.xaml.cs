@@ -51,12 +51,9 @@ public partial class App : Application
             // than silently overwriting with defaults. At startup that throw
             // would otherwise dump a stack trace on the user. Surface a clean
             // message pointing at the file so they can fix or delete it.
-            var path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                Branding.AppName, "settings.json");
             MessageBox.Show(
                 $"Couldn't read your VerseStrings settings — the file looks corrupted.\n\n" +
-                $"File: {path}\n\nDetails: {ex.Message}\n\n" +
+                $"File: {UserPaths.SettingsFile}\n\nDetails: {ex.Message}\n\n" +
                 "Fix the file or delete it (the app will recreate it on next launch).",
                 "Settings file is corrupted",
                 MessageBoxButton.OK,
@@ -68,12 +65,9 @@ public partial class App : Application
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         var github = new GithubReleaseClient(_http);
 
-        var backupsRoot = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            Branding.AppName, "backups");
-        Directory.CreateDirectory(backupsRoot);
+        Directory.CreateDirectory(UserPaths.BackupsRoot);
 
-        var installer = new Installer(github, backupsRoot);
+        var installer = new Installer(github, UserPaths.BackupsRoot);
         _toast = new ToastService();
         var processWatcher = new ProcessWatcher();
         var autostart = new AutostartService();
@@ -99,7 +93,7 @@ public partial class App : Application
         _tray.Show();
 
         _orchestrator.Start();
-        _ = CheckSelfUpdateAsync(new SelfUpdater(_http), _toast);
+        _ = CheckSelfUpdateAsync(new SelfUpdater(github), _toast);
     }
 
     private void HookGlobalExceptionHandlers()

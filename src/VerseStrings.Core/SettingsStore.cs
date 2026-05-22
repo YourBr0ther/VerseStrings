@@ -19,11 +19,8 @@ public sealed class SettingsStore
 
     public static SettingsStore Default()
     {
-        var dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            Branding.AppName);
-        Directory.CreateDirectory(dir);
-        return new SettingsStore(Path.Combine(dir, "settings.json"));
+        Directory.CreateDirectory(UserPaths.AppDataDir);
+        return new SettingsStore(UserPaths.SettingsFile);
     }
 
     public AppSettings Load()

@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.12] — 2026-05-22
+
+### Changed
+- Three duplications collapsed; no behavior change.
+- `UserPaths` (new, in Core) is the single source of truth for `%APPDATA%\
+  VerseStrings\`, `settings.json`, and the backups root. Replaces four
+  inline `Path.Combine(Environment.GetFolderPath(ApplicationData), …)`
+  computations across `SettingsStore`, `App.OnStartup` (×2), and
+  `TrayController.OnOpenBackupsFolder`. Changing the layout (or the brand)
+  is now a one-place edit.
+- `GithubReleaseClient` gains `GetLatestTagAsync(repo)`, sharing a private
+  `FetchLatestPayloadAsync` helper with the existing `GetLatestAsync`. The
+  GitHub API URL, headers, and JSON DTO live in one class instead of two.
+- `SelfUpdater` rewritten around `GithubReleaseClient` — takes the client
+  in its constructor instead of `HttpClient`, drops its own HTTP code and
+  its parallel `ReleasePayload` DTO. Shrinks from ~50 lines to ~30 with
+  no loss of behavior.
+- New `UserPathsTests` (3 cases) confirms the brand-derived path suffixes
+  are wired correctly. Test count 85 → 88.
+
 ## [0.1.11] — 2026-05-22
 
 ### Fixed
@@ -283,7 +303,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.8...v0.1.9

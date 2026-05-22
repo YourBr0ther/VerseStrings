@@ -1,7 +1,4 @@
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Reflection;
-using System.Text.Json.Serialization;
 using VerseStrings.Core;
 
 namespace VerseStrings.Services;
@@ -11,11 +8,11 @@ public sealed class SelfUpdater
     public static readonly string ReleasesPageUrl =
         $"https://github.com/{Branding.SelfUpdateRepo}/releases/latest";
 
-    private readonly HttpClient _http;
+    private readonly GithubReleaseClient _github;
 
-    public SelfUpdater(HttpClient http)
+    public SelfUpdater(GithubReleaseClient github)
     {
-        _http = http;
+        _github = github;
     }
 
     public Version CurrentVersion =>
@@ -28,24 +25,10 @@ public sealed class SelfUpdater
     /// </summary>
     public async Task<Version?> CheckForNewVersionAsync(CancellationToken ct = default)
     {
-        using var req = new HttpRequestMessage(
-            HttpMethod.Get,
-            $"https://api.github.com/repos/{Branding.SelfUpdateRepo}/releases/latest");
-        req.Headers.UserAgent.ParseAdd(GithubReleaseClient.UserAgent);
-        req.Headers.Accept.ParseAdd("application/vnd.github+json");
-
-        using var resp = await _http.SendAsync(req, ct);
-        if (!resp.IsSuccessStatusCode) return null;
-
-        var payload = await resp.Content.ReadFromJsonAsync<ReleasePayload>(cancellationToken: ct);
-        var latest = VersionParser.TryParseTag(payload?.TagName);
+        var tag = await _github.GetLatestTagAsync(Branding.SelfUpdateRepo, ct);
+        var latest = VersionParser.TryParseTag(tag);
         if (latest is null) return null;
 
         return latest.CompareTo(CurrentVersion) > 0 ? latest : null;
-    }
-
-    private sealed class ReleasePayload
-    {
-        [JsonPropertyName("tag_name")] public string? TagName { get; set; }
     }
 }

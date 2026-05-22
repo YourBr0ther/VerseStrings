@@ -266,13 +266,10 @@ public sealed class TrayController : IDisposable
 
     private void OnOpenBackupsFolder()
     {
-        var path = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            Branding.AppName, "backups");
-        Directory.CreateDirectory(path);
+        Directory.CreateDirectory(UserPaths.BackupsRoot);
         Process.Start(new ProcessStartInfo
         {
-            FileName = path,
+            FileName = UserPaths.BackupsRoot,
             UseShellExecute = true,
         });
     }
