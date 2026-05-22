@@ -234,10 +234,13 @@ public sealed class TrayController : IDisposable
 
     private static Icon LoadIcon()
     {
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
-        if (File.Exists(iconPath))
-            return new Icon(iconPath);
-        return SystemIcons.Information;
+        // Why a stream rather than a file path: the published exe is single-
+        // file and the installer doesn't ship a sidecar Assets folder, so a
+        // disk-based load was silently falling back to SystemIcons.Information
+        // on installed machines. The icon is now an EmbeddedResource.
+        using var stream = typeof(TrayController).Assembly
+            .GetManifestResourceStream("VerseStrings.icon.ico");
+        return stream is not null ? new Icon(stream) : SystemIcons.Information;
     }
 
     public void Dispose()

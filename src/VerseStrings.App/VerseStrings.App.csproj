@@ -28,9 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\icon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <!-- Embedded so the single-file publish doesn't need to ship a sidecar
+         icon.ico. The Win32 ApplicationIcon above is still the file shown in
+         Explorer / taskbar; this resource is what NotifyIcon reads at runtime. -->
+    <EmbeddedResource Include="Assets\icon.ico">
+      <LogicalName>VerseStrings.icon.ico</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

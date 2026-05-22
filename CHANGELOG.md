@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+- Tray icon now shows the actual VerseStrings icon on installed machines.
+  The previous code read `Assets\icon.ico` from `AppContext.BaseDirectory`,
+  which worked under `dotnet run` but not under the installed single-file
+  exe — `installer/VerseStrings.iss` only ships `VerseStrings.exe`, no
+  sidecar Assets folder, so `File.Exists` returned false and `LoadIcon`
+  silently fell back to `SystemIcons.Information`. The icon is now an
+  `EmbeddedResource` (`VerseStrings.icon.ico`), loaded from the assembly
+  stream — no installer change required, and the behavior is identical
+  for dev and installed runs.
+
 ## [0.1.4] — 2026-05-21
 
 ### Fixed
