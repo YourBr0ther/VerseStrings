@@ -11,6 +11,18 @@
     <RootNamespace>VerseStrings</RootNamespace>
     <Version>0.0.0-dev</Version>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+
+    <!-- These populate the exe's Win32 version block (right-click → Properties →
+         Details) and reduce "looks suspicious" heuristic scoring on AV scanners
+         that weight unattributed binaries higher. Also just nice polish. -->
+    <Company>YourBr0ther</Company>
+    <Authors>YourBr0ther</Authors>
+    <Product>VerseStrings</Product>
+    <AssemblyTitle>VerseStrings — Star Citizen localization pack auto-installer</AssemblyTitle>
+    <Description>Auto-installs Star Citizen community localization packs from GitHub releases. Watches GitHub for new pack releases, applies them when the game is closed, backs up the previous version every time.</Description>
+    <Copyright>Copyright (c) 2026 YourBr0ther</Copyright>
+    <PackageProjectUrl>https://github.com/YourBr0ther/VerseStrings</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/YourBr0ther/VerseStrings</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

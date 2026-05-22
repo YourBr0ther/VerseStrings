@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.15] — 2026-05-22
+
+### Added
+- Win32 version metadata on the app exe and the installer exe. The .NET
+  project now declares `<Company>`, `<Product>`, `<AssemblyTitle>`,
+  `<Description>`, `<Copyright>`, `<PackageProjectUrl>`, and
+  `<RepositoryUrl>`. The Inno Setup script now sets `VersionInfoCompany`,
+  `VersionInfoProductName`, `VersionInfoProductVersion`, `VersionInfoVersion`,
+  `VersionInfoDescription`, and `VersionInfoCopyright`. Right-click →
+  Properties → Details now shows real values instead of empty fields, and
+  the binary doesn't read as "unattributed" to AV heuristics that weight
+  missing metadata as a weak suspicion signal (motivated by a
+  `Trojan:Win32/Wacatac.C!ml` false-positive flag on the unsigned v0.1.14
+  installer).
+
 ### Changed
 - README updated to reflect the current tray menu (the previous list dated
   from v0.1.0 and was missing the pack picker, settings, and open-backups
@@ -364,7 +379,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...v0.1.12

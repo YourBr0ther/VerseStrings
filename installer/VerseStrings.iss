@@ -31,6 +31,15 @@ DisableProgramGroupPage=yes
 DisableDirPage=yes
 UninstallDisplayIcon={app}\{#AppExeName}
 UninstallDisplayName={#AppName}
+; Populates the installer exe's version-info block. Reduces "unattributed
+; binary" heuristic weight on AV scanners and shows real values in the
+; right-click Properties dialog instead of "VerseStrings" with empty fields.
+VersionInfoCompany={#AppPublisher}
+VersionInfoProductName={#AppName}
+VersionInfoProductVersion={#AppVersion}
+VersionInfoVersion={#AppVersion}
+VersionInfoDescription=VerseStrings installer
+VersionInfoCopyright=Copyright (c) 2026 {#AppPublisher}
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\dist
