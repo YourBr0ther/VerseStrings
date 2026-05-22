@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.11] — 2026-05-22
+
+### Fixed
+- Changing the pack via the Settings dialog now reflects in the tray
+  submenu and triggers an immediate switch — same behavior as picking
+  the pack from the tray submenu directly. Previously the dialog
+  Save persisted the new `SelectedPackId` but the tray's cached radio-
+  dot state was never refreshed, and the orchestrator only picked the
+  new pack up on the next 15-minute poll. The two UI surfaces now
+  agree on what's selected and act consistently when changed.
+
+### Changed
+- `TrayController` consolidates menu-state-from-settings into a single
+  `RefreshTrayState` method. Every code path that mutates settings —
+  the orchestrator's `StatusChanged` event, the Settings dialog close,
+  the tray's "Check now" finally, the initial `Show` — funnels through
+  it. Removes the bug class where one handler refreshed some menu
+  items but forgot others.
+- `OnSelectPack` factored: the "already on this pack" early-return
+  stays at the tray-click entry, and the actual switch logic is now
+  `SwitchToPackAsync` — reused by the Settings dialog post-save path.
+
 ## [0.1.10] — 2026-05-22
 
 ### Fixed
@@ -261,7 +283,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.7...v0.1.8

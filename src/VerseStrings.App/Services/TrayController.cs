@@ -63,7 +63,7 @@ public sealed class TrayController : IDisposable
         };
 
         _orchestrator.StatusChanged += (_, _) =>
-            Application.Current.Dispatcher.Invoke(() => SafeInvoke("Status refresh failed", RefreshStatus));
+            Application.Current.Dispatcher.Invoke(() => SafeInvoke("Tray refresh failed", RefreshTrayState));
     }
 
     private ContextMenuStrip BuildMenu()
@@ -121,11 +121,22 @@ public sealed class TrayController : IDisposable
         if (string.Equals(settings.SelectedPackId, pack.Id, StringComparison.Ordinal))
             return; // already on this pack — no-op rather than reinstall
 
+        await SwitchToPackAsync(pack);
+    }
+
+    /// <summary>
+    /// Triggers an immediate switch to <paramref name="pack"/>, with the same
+    /// toast + tray-sync semantics regardless of whether the user picked it
+    /// in the tray submenu or via the Settings dialog. Assumes the caller has
+    /// already decided a switch is wanted (no "already on this pack" guard).
+    /// </summary>
+    private async Task SwitchToPackAsync(Pack pack)
+    {
         _toast.Show("Switching pack", $"Switching to {pack.DisplayName}…");
         SyncPackChecks(pack.Id);
 
         await _orchestrator.SwitchPackAsync(pack);
-        SyncPackChecks(_settingsStore.Load().SelectedPackId);
+        RefreshTrayState();
     }
 
     private void SyncPackChecks(string activeId)
@@ -137,7 +148,7 @@ public sealed class TrayController : IDisposable
     public void Show()
     {
         _icon.Visible = true;
-        SafeInvoke("Status refresh failed", RefreshStatus);
+        SafeInvoke("Tray refresh failed", RefreshTrayState);
     }
 
     public void ShowSelfUpdateAvailable(Version newVersion)
@@ -172,23 +183,36 @@ public sealed class TrayController : IDisposable
         finally
         {
             _checkNowItem.Enabled = true;
-            SafeInvoke("Status refresh failed", RefreshStatus);
+            SafeInvoke("Tray refresh failed", RefreshTrayState);
         }
     }
 
     private void OnOpenSettings()
     {
+        var beforePackId = _settingsStore.Load().SelectedPackId;
+
         var window = new SettingsWindow(_settingsStore, hint: null, isFirstRun: false);
         window.ShowDialog();
 
-        var desired = _settingsStore.Load().AutostartEnabled;
-        if (!_autostart.Sync(desired))
+        var settings = _settingsStore.Load();
+
+        if (!_autostart.Sync(settings.AutostartEnabled))
         {
             _toast.Show("Couldn't update autostart",
                 "Windows refused the registry change. Try toggling it from the tray menu.");
         }
-        _autostartItem.Checked = _autostart.IsEnabled();
-        SafeInvoke("Status refresh failed", RefreshStatus);
+
+        RefreshTrayState(settings);
+
+        // If the dialog changed the pack, fire an immediate switch so the
+        // tray submenu and the actual install line up right away instead of
+        // waiting for the next 15-minute poll. Same UX as picking from the
+        // tray submenu directly.
+        if (!string.Equals(beforePackId, settings.SelectedPackId, StringComparison.Ordinal) &&
+            Packs.ById(settings.SelectedPackId) is { } pack)
+        {
+            _ = SafeInvokeAsync("Couldn't switch pack", () => SwitchToPackAsync(pack));
+        }
     }
 
     private void OnRestoreBackup()
@@ -253,13 +277,21 @@ public sealed class TrayController : IDisposable
         });
     }
 
-    private void RefreshStatus()
+    /// <summary>
+    /// Single point of "make every menu item reflect what settings.json + the
+    /// registry currently say". Anything that mutates settings — the orchestrator,
+    /// the Settings dialog, a tray click — should funnel through this on the
+    /// way back so a tray cache can't silently disagree with persisted state.
+    /// </summary>
+    private void RefreshTrayState() => RefreshTrayState(_settingsStore.Load());
+
+    private void RefreshTrayState(AppSettings settings)
     {
-        var settings = _settingsStore.Load();
-        var label = settings.LastAppliedReleaseName is { Length: > 0 } name
+        SyncPackChecks(settings.SelectedPackId);
+        _autostartItem.Checked = _autostart.IsEnabled();
+        _statusItem.Text = settings.LastAppliedReleaseName is { Length: > 0 } name
             ? $"Last installed: {name}"
             : "No installs yet";
-        _statusItem.Text = label;
     }
 
     private void SafeInvoke(string failureTitle, Action body)
