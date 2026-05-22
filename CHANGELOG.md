@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.10] — 2026-05-22
+
+### Fixed
+- Settings ComboBox header (the closed-selection display) now keeps the
+  dark theme when focused or while the dropdown is open. The default WPF
+  template applies `SystemColors` to that area in those states, which
+  overrode our `Background` and made the currently-selected pack name
+  hard to read. Provided a full `ComboBox` `ControlTemplate` with explicit
+  triggers — accent blue border (`#3d6dd0`) on keyboard focus, a slightly
+  lighter gray (`#5a5a66`) on mouse hover, dark gray border otherwise.
+  The chevron is a small `Path` triangle so it doesn't drag in system-
+  themed `Button` chrome either.
+
 ## [0.1.9] — 2026-05-22
 
 ### Fixed
@@ -248,7 +261,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.6...v0.1.7

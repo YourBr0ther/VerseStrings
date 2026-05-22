@@ -20,11 +20,85 @@
             <Setter Property="BorderBrush" Value="#3a3a44" />
             <Setter Property="Padding" Value="6,4" />
         </Style>
+        <!-- Why a full ComboBox ControlTemplate: the default WPF template applies
+             SystemColors to the selection-display Border when the dropdown is open
+             or the control is focused, which overrides our dark Background. The
+             v0.1.9 ComboBoxItem fix only addressed the dropdown items; this fixes
+             the header (closed-selection display) when the box is active. -->
         <Style TargetType="ComboBox">
             <Setter Property="Background" Value="#2a2a31" />
             <Setter Property="Foreground" Value="#e8e8ec" />
             <Setter Property="BorderBrush" Value="#3a3a44" />
             <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="22" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="MainBorder"
+                                    Grid.ColumnSpan="2"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" />
+
+                            <ContentPresenter Grid.Column="0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              IsHitTestVisible="False"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+
+                            <ToggleButton Grid.Column="1"
+                                          Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"
+                                          Background="Transparent"
+                                          BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <Path Data="M 0 0 L 4 4 L 8 0 Z"
+                                                  Fill="#e8e8ec"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade">
+                                <Border Background="#2a2a31"
+                                        BorderBrush="#3a3a44"
+                                        BorderThickness="1"
+                                        MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer>
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#3d6dd0" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#5a5a66" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <!-- Why a full ControlTemplate: the default ComboBoxItem template has
              internal triggers that override Background to SystemColors.HighlightBrush
