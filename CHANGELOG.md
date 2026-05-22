@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.6] — 2026-05-22
+
+### Fixed
+- Pack zip extraction now installs only what the README documents: a top-
+  level `user.cfg` (case-insensitive) and anything under a top-level
+  `data/` directory (case-insensitive). Files at the zip root that aren't
+  `user.cfg` — most notably StarStrings' `readme.md`, which has been
+  silently landing in users' LIVE folders since v0.1.0 — are now skipped.
+  Pure helper `Installer.ShouldInstall(relativePath)` covered by
+  `InstallerScopeTests`.
+
+### Note for upgraders
+- Existing installs may already have a `readme.md` (and possibly other
+  pack-author artifacts) sitting in `StarCitizen\LIVE\`. This release
+  stops adding new ones but does not retroactively delete what's already
+  there. You can safely remove `readme.md` from your LIVE folder root if
+  you'd like; Star Citizen ignores it either way.
+
 ## [0.1.5] — 2026-05-22
 
 ### Added
@@ -182,7 +200,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.2...v0.1.3

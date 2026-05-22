@@ -125,6 +125,8 @@ public sealed class Installer
         foreach (var file in Directory.EnumerateFiles(sourceRoot, "*", SearchOption.AllDirectories))
         {
             var rel = Path.GetRelativePath(sourceRoot, file);
+            if (!ShouldInstall(rel)) continue;
+
             var dest = Path.Combine(liveFolderPath, rel);
 
             if (string.Equals(Path.GetFileName(rel), "user.cfg", StringComparison.OrdinalIgnoreCase))
@@ -143,6 +145,28 @@ public sealed class Installer
         }
 
         return filesWritten;
+    }
+
+    /// <summary>
+    /// Scopes installation to the two paths the project documents in README:
+    /// a top-level <c>user.cfg</c> (case-insensitive) and anything under a
+    /// top-level <c>data/</c> directory (case-insensitive). Files outside
+    /// that contract — like StarStrings' <c>readme.md</c> — are skipped so
+    /// the user's LIVE folder isn't polluted with pack-author artifacts.
+    /// Public for testing.
+    /// </summary>
+    public static bool ShouldInstall(string relativePath)
+    {
+        if (string.IsNullOrEmpty(relativePath)) return false;
+
+        var normalized = relativePath.Replace('\\', '/');
+        var firstSlash = normalized.IndexOf('/');
+
+        if (firstSlash < 0)
+            return string.Equals(normalized, "user.cfg", StringComparison.OrdinalIgnoreCase);
+
+        var firstSegment = normalized[..firstSlash];
+        return string.Equals(firstSegment, "data", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void SafeExtract(string zipPath, string extractDir)
