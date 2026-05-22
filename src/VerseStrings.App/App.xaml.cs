@@ -83,19 +83,48 @@ public partial class App : Application
             settings = _settingsStore.Load();
         }
 
+        if (startup.IsStandalone)
+        {
+            RunStandalone();
+        }
+        else
+        {
+            RunTray(installer, autostart, settings);
+        }
+
+        _ = CheckSelfUpdateAsync(new SelfUpdater(github), _toast);
+    }
+
+    private void RunTray(Installer installer, AutostartService autostart, AppSettings settings)
+    {
         autostart.Sync(settings.AutostartEnabled);
 
         _tray = new TrayController(
-            settingsStore: _settingsStore,
-            orchestrator: _orchestrator,
+            settingsStore: _settingsStore!,
+            orchestrator: _orchestrator!,
             installer: installer,
-            toast: _toast,
+            toast: _toast!,
             autostart: autostart,
             shutdown: Shutdown);
         _tray.Show();
 
-        _orchestrator.Start();
-        _ = CheckSelfUpdateAsync(new SelfUpdater(github), _toast);
+        _orchestrator!.Start();
+    }
+
+    private void RunStandalone()
+    {
+        // Why no autostart.Sync here: standalone mode is "user opens the app
+        // when they want it" — autostart belongs to the tray. The setting
+        // persists in case the user later switches modes, and the installer
+        // already cleared the Run-key value when the tray task was unticked.
+        var window = new SettingsWindow(
+            _settingsStore!,
+            hint: null,
+            SettingsWindowMode.Standalone,
+            _orchestrator!,
+            _toast!);
+        MainWindow = window;
+        window.Show();
     }
 
     private void HookGlobalExceptionHandlers()
@@ -157,7 +186,12 @@ public partial class App : Application
     private void RunFirstRunFlow()
     {
         var detected = GameLocator.TryDetectLiveFolder();
-        var window = new SettingsWindow(_settingsStore!, detected, isFirstRun: true);
+        var window = new SettingsWindow(
+            _settingsStore!,
+            detected,
+            SettingsWindowMode.FirstRun,
+            _orchestrator!,
+            _toast!);
         window.ShowDialog();
     }
 

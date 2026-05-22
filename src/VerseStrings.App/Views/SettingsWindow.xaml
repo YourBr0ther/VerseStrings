@@ -175,7 +175,7 @@
         <TextBlock Grid.Row="4" Text="Localization pack" Margin="0,14,0,2" />
         <ComboBox x:Name="PackBox" Grid.Row="5" />
 
-        <StackPanel Grid.Row="6" Orientation="Horizontal" Margin="0,14,0,0">
+        <StackPanel x:Name="IntervalPanel" Grid.Row="6" Orientation="Horizontal" Margin="0,14,0,0">
             <TextBlock Text="Check every" Margin="0,0,8,0" VerticalAlignment="Center" />
             <TextBox x:Name="IntervalBox" Width="60" Text="15" />
             <TextBlock Text="minutes" Margin="8,0,0,0" VerticalAlignment="Center" />
@@ -189,9 +189,13 @@
 
         <StackPanel Grid.Row="9" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="0,18,0,0">
-            <Button Content="Cancel" Click="OnCancelClicked" Margin="0,0,8,0" />
-            <Button Content="Save" Click="OnSaveClicked"
+            <Button x:Name="CloseButton" Content="Close" Click="OnCloseClicked"
+                    Margin="0,0,8,0" Visibility="Collapsed" />
+            <Button x:Name="CancelButton" Content="Cancel" Click="OnCancelClicked" Margin="0,0,8,0" />
+            <Button x:Name="SaveButton" Content="Save" Click="OnSaveClicked"
                     Background="#3d6dd0" Foreground="White" />
+            <Button x:Name="SyncButton" Content="Sync now" Click="OnSyncClicked"
+                    Background="#3d6dd0" Foreground="White" Visibility="Collapsed" />
         </StackPanel>
     </Grid>
 </Window>

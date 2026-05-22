@@ -6,6 +6,53 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.16] — 2026-05-22
+
+Standalone run mode.
+
+### Added
+- New **Standalone** run mode for users who don't want a background watcher.
+  Opens a single window with a **Sync now** button — click it, the app
+  fetches the latest release for the selected pack, runs the same install
+  pipeline the tray uses (download, SHA verify, backup, install), toasts
+  the result. Closing the window exits the app. No tray icon, no polling,
+  no autostart.
+- Installer wizard's **Run modes** task selection on the Ready page lets
+  the user pick Tray (default), Standalone, or both. At least one must be
+  selected (`NextButtonClick` blocks the wizard otherwise).
+- README **Run modes** section documenting both flows and how to switch
+  between them.
+
+### Changed
+- `VerseStrings.exe` startup dispatches on a `--standalone` flag. No-args
+  launch (the existing tray-shortcut form, unchanged) preserves v0.1.0–
+  v0.1.15 behavior. The new standalone Start-menu shortcut passes
+  `--standalone`.
+- `SettingsWindow` gains a `Mode` enum (`FirstRun` / `FromTrayMenu` /
+  `Standalone`). Standalone mode hides the check-interval row and
+  autostart checkbox (both tray-mode-only concepts), shows a Sync +
+  Close button row instead of Save + Cancel, and is the app's
+  `MainWindow` — its `Closed` event triggers `Application.Shutdown`.
+- `UpdateOrchestrator` gains `SyncNowAsync` returning `SyncOutcome`
+  (`NoChange` / `Installed` / `GameRunning` / `Failed`). Underneath:
+  `RunCheckAsync` was refactored to take a `bool waitForGameExit` and
+  return the outcome. The tray loop and `CheckNowAsync` pass `true`
+  (existing queue-until-game-closes behavior preserved); standalone's
+  Sync passes `false` (returns `GameRunning` immediately so the user
+  can close the game and re-click).
+- `InstallerArgs` renamed to `StartupArgs` — same source file, same
+  parsing role, but now also reads `--standalone`. Returns a record
+  with `IsStandalone` + `PackHint`. Test coverage extended from 5 to
+  11 cases (standalone-flag variants, case sensitivity, combined flags,
+  order independence).
+
+### Fixed
+- Installer cleans up the autostart `HKCU\…\Run\VerseStrings` value
+  during install if the tray task is unticked. Prevents the corner case
+  where a previous tray install enabled autostart and a subsequent
+  standalone-only reinstall would otherwise leave an orphaned Run-key
+  firing tray mode at every login.
+
 ## [0.1.15] — 2026-05-22
 
 ### Added
@@ -379,7 +426,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.16...HEAD
+[0.1.16]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...v0.1.13

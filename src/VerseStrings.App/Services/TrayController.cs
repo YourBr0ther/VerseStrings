@@ -190,7 +190,12 @@ public sealed class TrayController : IDisposable
     {
         var beforePackId = _settingsStore.Load().SelectedPackId;
 
-        var window = new SettingsWindow(_settingsStore, hint: null, isFirstRun: false);
+        var window = new SettingsWindow(
+            _settingsStore,
+            hint: null,
+            SettingsWindowMode.FromTrayMenu,
+            _orchestrator,
+            _toast);
         window.ShowDialog();
 
         var settings = _settingsStore.Load();

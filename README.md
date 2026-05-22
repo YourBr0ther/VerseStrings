@@ -41,7 +41,16 @@ Grab `VerseStringsSetup-X.Y.Z.exe` from [Releases](../../releases). Per-user ins
 
 SmartScreen may warn the publisher is unverified — **More info → Run anyway**.
 
-On first launch the app auto-detects your `StarCitizen\LIVE` folder (or prompts you to pick it) and asks which pack you want to start with. The tray icon menu includes: check-for-updates, pack picker, restore-previous, settings, open-backups, autostart toggle.
+On first launch the app auto-detects your `StarCitizen\LIVE` folder (or prompts you to pick it) and asks which pack you want to start with.
+
+## Run modes
+
+The installer offers two ways to run VerseStrings — pick one, or install both:
+
+- **Tray app** (default) — runs in the background, polls GitHub every 15 minutes (configurable), installs new pack releases automatically, optional autostart-at-login. Tray menu has: check-for-updates, pack picker, restore-previous, settings, open-backups, autostart toggle.
+- **Standalone app** — opens a window with a **Sync now** button. No tray icon, no background polling, no autostart. Click Sync when you want to check for and install updates; close the window when you're done.
+
+Both modes share the same `settings.json` and the same backup folder. To switch modes: quit the running one, launch the other shortcut from your Start menu. Only one mode runs at a time.
 
 ## What it touches
 

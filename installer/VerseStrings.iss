@@ -57,17 +57,35 @@ MinVersion=10.0.17763
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
+Name: "trayshortcut"; Description: "Tray app (background, auto-installs new pack releases)"; GroupDescription: "Run modes:"
+Name: "standaloneshortcut"; Description: "Standalone app (open it manually to sync)"; GroupDescription: "Run modes:"; Flags: unchecked
 Name: "desktopicon"; Description: "Create a &Desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
 
 [Files]
 Source: "{#PublishDir}\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#AppName}";        Filename: "{app}\{#AppExeName}"
-Name: "{userdesktop}\{#AppName}";  Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
+; Start menu shortcuts — one per selected mode.
+Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: trayshortcut
+Name: "{group}\{#AppName} Standalone"; Filename: "{app}\{#AppExeName}"; Parameters: "--standalone"; Tasks: standaloneshortcut
+; Desktop shortcut — points at whichever mode is installed. If both are
+; installed, prefer tray (matches v0.1.15 behavior).
+Name: "{userdesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon and trayshortcut
+Name: "{userdesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Parameters: "--standalone"; Tasks: desktopicon and standaloneshortcut and not trayshortcut
+
+[Registry]
+; Why: a previous tray install may have enabled autostart, leaving an
+; HKCU Run-key value pointing at our exe. If the user reinstalls and
+; opts out of the tray task, that orphaned Run-key would still launch
+; VerseStrings (in tray mode by default) at every login. Delete it.
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#AppName}"; ValueType: none; Flags: deletevalue; Tasks: not trayshortcut
 
 [Run]
-Filename: "{app}\{#AppExeName}"; Parameters: "--pack={code:GetSelectedPackId}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
+; Post-install launch honors the user's mode pick. If tray is selected,
+; launch tray (regardless of standalone). If standalone-only, launch
+; standalone. If neither (blocked by NextButtonClick anyway), nothing runs.
+Filename: "{app}\{#AppExeName}"; Parameters: "--pack={code:GetSelectedPackId}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent; Tasks: trayshortcut
+Filename: "{app}\{#AppExeName}"; Parameters: "--standalone --pack={code:GetSelectedPackId}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent; Tasks: standaloneshortcut and not trayshortcut
 
 [Code]
 var
@@ -80,7 +98,7 @@ begin
     wpLicense,
     'Localization pack',
     'Choose which community pack to start with.',
-    'You can switch packs anytime from the tray menu after install.',
+    'You can switch packs anytime after install.',
     True,  { Exclusive: True => radio buttons. }
     False); { ListBox: False => stacked radios, not a listbox. }
   PackPage.Add('StarStrings (MrKraken)');
@@ -88,6 +106,19 @@ begin
   PackPage.Add('ScCompLangPackRemix (BeltaKoda)');
   PackPage.Add('ScCompLangPackRemix2 (ExoAE)');
   PackPage.SelectedValueIndex := 0;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if CurPageID = wpSelectTasks then
+  begin
+    if not WizardIsTaskSelected('trayshortcut') and not WizardIsTaskSelected('standaloneshortcut') then
+    begin
+      MsgBox('Please choose at least one run mode (Tray or Standalone).', mbError, MB_OK);
+      Result := False;
+    end;
+  end;
 end;
 
 function GetSelectedPackId(Param: String): String;
