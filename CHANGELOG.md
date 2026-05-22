@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.1.14] — 2026-05-22
+
+Public-friendliness polish. No app behavior change.
+
+### Added
+- Release workflow now extracts the matching `## [X.Y.Z]` section from
+  `CHANGELOG.md` and prepends it to the GitHub release notes under a
+  "What's new" header. Anyone landing on the release page sees the actual
+  per-version changes alongside the install instructions and SHA-256,
+  instead of having to click through to the repo to find the changelog.
+- `.github/PULL_REQUEST_TEMPLATE.md` matching the existing issue
+  templates. Prompts contributors for summary, Windows version tested
+  on, packs tested with, and tests added.
+- README badges for CI status, latest release, and total download count.
+- Discoverability topics on the GitHub repo (`star-citizen`,
+  `localization`, `windows`, `tray-app`, `dotnet`, `inno-setup`, `wpf`).
+
 ## [0.1.13] — 2026-05-22
 
 A senior-engineer audit pass. No user-facing behavior change.
@@ -339,7 +356,8 @@ Initial release.
 - Inno Setup installer (`VerseStringsSetup-<version>.exe`) — per-user install to `%LOCALAPPDATA%\Programs\VerseStrings\`, no admin required, proper uninstall entry under Apps & Features.
 - GitHub Actions release workflow — push a `v*` tag to build the self-contained exe, compile the installer, compute SHA-256, and create a GitHub release with the installer attached.
 
-[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/YourBr0ther/VerseStrings/compare/v0.1.10...v0.1.11

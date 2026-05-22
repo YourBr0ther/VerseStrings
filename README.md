@@ -9,6 +9,9 @@ Auto-installs community localization packs for Star Citizen. Watches GitHub for 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-blue)
 ![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)
+[![CI](https://github.com/YourBr0ther/VerseStrings/actions/workflows/ci.yml/badge.svg)](https://github.com/YourBr0ther/VerseStrings/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/YourBr0ther/VerseStrings?label=latest)](https://github.com/YourBr0ther/VerseStrings/releases/latest)
+![Downloads](https://img.shields.io/github/downloads/YourBr0ther/VerseStrings/total)
 
 </div>
 
